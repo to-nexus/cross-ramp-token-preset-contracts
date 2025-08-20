@@ -3,8 +3,8 @@ pragma solidity 0.8.28;
 
 import {UUPSUpgradeable} from "@openzeppelin-contracts-upgradeable-5.4.0/proxy/utils/UUPSUpgradeable.sol";
 import {OwnableUpgradeable} from "@openzeppelin-contracts-upgradeable-5.4.0/access/OwnableUpgradeable.sol";
-import {EnumerableSet} from "@openzeppelin-contracts-5.4.0/utils/structs/EnumerableSet.sol";
 import {AccessControlUpgradeable} from "@openzeppelin-contracts-upgradeable-5.4.0/access/AccessControlUpgradeable.sol";
+import {EnumerableSet} from "@openzeppelin-contracts-5.4.0/utils/structs/EnumerableSet.sol";
 
 abstract contract TokenBase is UUPSUpgradeable, AccessControlUpgradeable {
     using EnumerableSet for EnumerableSet.AddressSet;
