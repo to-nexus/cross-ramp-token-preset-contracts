@@ -10,6 +10,10 @@ contract ERC20SingleMintLimited is ERC20Base, ERC20Capable, ERC20PeriodMintLimit
     error ERC20SingleMintLimited__InvalidInitialData();
     error ERC20SingleMintLimited__CapTooLow(uint256 cap, uint256 initialSupply);
 
+    constructor() {
+        _disableInitializers();
+    }
+
     function initialize(
         address owner,
         address manager,

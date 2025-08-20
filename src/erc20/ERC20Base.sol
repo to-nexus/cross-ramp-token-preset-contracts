@@ -12,6 +12,10 @@ abstract contract ERC20Base is TokenBase, IERC20Forge, ERC20Upgradeable, ERC20Pe
     bytes32 private constant ERC20DecimalsStorageLocation =
         0x7c3cec2c3c3d573fa006ae6cf08c04c65698a48d9586626c622c1a81a45caf00;
 
+    constructor() {
+        _disableInitializers();
+    }
+
     function initialize(
         address owner,
         address manager,

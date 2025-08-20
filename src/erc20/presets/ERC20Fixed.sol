@@ -7,6 +7,10 @@ contract ERC20Fixed is ERC20Base {
     error ERC20Fixed__MintingNotAllowed();
     error ERC20Fixed__BurningNotAllowed();
 
+    constructor() {
+        _disableInitializers();
+    }
+
     function initialize(
         address owner,
         address manager,

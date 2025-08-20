@@ -68,9 +68,9 @@ abstract contract TokenBase is UUPSUpgradeable, AccessControlUpgradeable {
 
         EnumerableSet.AddressSet storage $ = _getForgesStorage();
         unchecked {
-            for (uint256 i = 0; i < _forges.length;) {
+            uint256 length = _forges.length;
+            for (uint256 i = 0; i < length; ++i) {
                 fn($, _forges[i]);
-                ++i;
             }
         }
     }

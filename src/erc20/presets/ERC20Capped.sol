@@ -7,6 +7,10 @@ contract ERC20Capped is ERC20Capable {
     error ERC20Capped__InvalidCapData();
     error ERC20Capped__CapTooLow(uint256 cap, uint256 initialSupply);
 
+    constructor() {
+        _disableInitializers();
+    }
+
     function initialize(
         address _owner,
         address manager,

@@ -9,6 +9,10 @@ contract ERC20MultiMintLimited is ERC20Base, ERC20Capable, ERC20PeriodsMintLimit
     error ERC20MultiMintLimited__InvalidInitialData();
     error ERC20MultiMintLimited__CapTooLow(uint256 cap, uint256 initialSupply);
 
+    constructor() {
+        _disableInitializers();
+    }
+
     function initialize(
         address owner,
         address manager,
