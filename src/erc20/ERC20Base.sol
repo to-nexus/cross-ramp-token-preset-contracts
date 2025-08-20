@@ -15,32 +15,32 @@ abstract contract ERC20Base is TokenBase, IERC20Forge, ERC20Upgradeable, ERC20Pe
     function initialize(
         address owner,
         address manager,
-        string memory name,
-        string memory symbol,
+        string memory _name,
+        string memory _symbol,
         uint8 _decimals,
         uint256 initialSupply,
         address initialRecipient,
         bytes memory
     ) external virtual override initializer {
-        __ERC20Base_init(owner, manager, name, symbol, _decimals, initialSupply, initialRecipient);
+        __ERC20Base_init(owner, manager, _name, _symbol, _decimals, initialSupply, initialRecipient);
     }
 
     function __ERC20Base_init(
         address owner,
         address manager,
-        string memory name,
-        string memory symbol,
+        string memory _name,
+        string memory _symbol,
         uint8 _decimals,
         uint256 initialSupply,
         address initialRecipient
     ) internal onlyInitializing {
-        if (bytes(name).length == 0) revert TokenBase__NullInput("name");
-        if (bytes(symbol).length == 0) revert TokenBase__NullInput("symbol");
+        if (bytes(_name).length == 0) revert TokenBase__NullInput("name");
+        if (bytes(_symbol).length == 0) revert TokenBase__NullInput("symbol");
 
         __TokenBase_init(owner, manager);
 
-        __ERC20_init(name, symbol);
-        __ERC20Permit_init(name);
+        __ERC20_init(_name, _symbol);
+        __ERC20Permit_init(_name);
         __ERC20Base_init_unchained(_decimals, initialSupply, initialRecipient);
     }
 
@@ -66,6 +66,22 @@ abstract contract ERC20Base is TokenBase, IERC20Forge, ERC20Upgradeable, ERC20Pe
         _burn(from, amount);
     }
 
+    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+        return interfaceId == type(IERC20Forge).interfaceId || super.supportsInterface(interfaceId);
+    }
+
+    ///////////////////////////////
+    // override ERC20Upgradeable //
+    ///////////////////////////////
+
+    function name() public view virtual override returns (string memory) {
+        return ERC20Upgradeable.name();
+    }
+
+    function symbol() public view virtual override returns (string memory) {
+        return ERC20Upgradeable.symbol();
+    }
+
     function decimals() public view virtual override returns (uint8) {
         uint8 _decimals;
         assembly {
@@ -74,19 +90,47 @@ abstract contract ERC20Base is TokenBase, IERC20Forge, ERC20Upgradeable, ERC20Pe
         return _decimals;
     }
 
-    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
-        return interfaceId == type(IERC20Forge).interfaceId || super.supportsInterface(interfaceId);
+    function totalSupply() public view virtual override returns (uint256) {
+        return ERC20Upgradeable.totalSupply();
     }
 
-    function _update(address from, address to, uint256 value) internal virtual override {
-        ERC20Upgradeable._update(from, to, value);
+    function balanceOf(address account) public view virtual override returns (uint256) {
+        return ERC20Upgradeable.balanceOf(account);
+    }
+
+    function allowance(address owner, address spender) public view virtual override returns (uint256) {
+        return ERC20Upgradeable.allowance(owner, spender);
     }
 
     function transfer(address to, uint256 value) public virtual override returns (bool) {
         return ERC20Upgradeable.transfer(to, value);
     }
 
+    function approve(address spender, uint256 value) public virtual override returns (bool) {
+        return ERC20Upgradeable.approve(spender, value);
+    }
+
     function transferFrom(address from, address to, uint256 value) public virtual override returns (bool) {
         return ERC20Upgradeable.transferFrom(from, to, value);
+    }
+
+    function _update(address from, address to, uint256 value) internal virtual override {
+        ERC20Upgradeable._update(from, to, value);
+    }
+
+    function _approve(address owner, address spender, uint256 value, bool emitEvent) internal virtual override {
+        ERC20Upgradeable._approve(owner, spender, value, emitEvent);
+    }
+
+    function _spendAllowance(address owner, address spender, uint256 value) internal virtual override {
+        ERC20Upgradeable._spendAllowance(owner, spender, value);
+    }
+
+    /////////////////////////////////////
+    // override ERC20PermitUpgradeable //
+    /////////////////////////////////////
+
+    function nonces(address owner) public view virtual override returns (uint256) {
+        return ERC20PermitUpgradeable.nonces(owner);
     }
 }
