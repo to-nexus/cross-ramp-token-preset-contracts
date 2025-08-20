@@ -9,9 +9,9 @@ abstract contract ERC20Capable is ERC20Base {
      */
     error ERC20Capable__ERC20ExceededCap(uint256 increasedSupply, uint256 cap);
 
-    // keccak256(abi.encode(uint256(keccak256("cross.storage.forge.erc20.ERC20Capable")) - 1)) & ~bytes32(uint256(0xff))
+    // keccak256(abi.encode(uint256(keccak256("cross.ramp.storage.erc20.ERC20Capable")) - 1)) & ~bytes32(uint256(0xff))
     bytes32 private constant ERC20CapableStorageLocation =
-        0x8007109065499a57d273132fba2e55750074b17ed6f6893f5ca2c5852612b300;
+        0x6124d57edb60d866286eaee21ef1ce5eb21f42d9a55fe900ab9d9e1f5aa87200;
 
     function __ERC20Capable_init(uint256 cap_) internal onlyInitializing {
         if (cap_ == 0) {

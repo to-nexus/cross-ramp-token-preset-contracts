@@ -16,7 +16,7 @@ abstract contract ERC20PeriodMintLimit is ERC20Base {
     event PeriodStarted(uint256 indexed periodStart, uint256 availableCapacity);
     event MintLimitUpdated(uint256 oldLimits, uint256 newLimits);
 
-    /// @custom:storage-location erc7201:cross.storage.forge.erc20.ERC20PeriodMintLimit
+    /// @custom:storage-location erc7201:cross.ramp.storage.erc20.ERC20PeriodMintLimit
     struct ERC20PeriodMintLimitStorage {
         PeriodManager.PeriodConfig period;
         uint256 periodStartTime; // The block.timestamp when the current period started
@@ -24,9 +24,9 @@ abstract contract ERC20PeriodMintLimit is ERC20Base {
         uint256 periodCapacity; // The remaining capacity for the current period
     }
 
-    // keccak256(abi.encode(uint256(keccak256("cross.storage.forge.erc20.ERC20PeriodMintLimit")) - 1)) & ~bytes32(uint256(0xff))
+    // keccak256(abi.encode(uint256(keccak256("cross.ramp.storage.erc20.ERC20PeriodMintLimit")) - 1)) & ~bytes32(uint256(0xff))
     bytes32 private constant ERC20PeriodMintLimitStorageLocation =
-        0x02a11301204be66f32a67781798c285672cc036f4b261d5c0050a8b03927de00;
+        0xbfe38164f4301e1b504c75c70e5c430bf30509ee0f9b81dc0d9a573797e93f00;
 
     function _getERC20PeriodMintLimitStorage() private pure returns (ERC20PeriodMintLimitStorage storage $) {
         assembly {

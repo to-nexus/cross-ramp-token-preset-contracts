@@ -8,9 +8,9 @@ import {IERC20Forge} from "../interfaces/IERC20Forge.sol";
 import {TokenBase} from "../TokenBase.sol";
 
 abstract contract ERC20Base is TokenBase, IERC20Forge, ERC20Upgradeable, ERC20PermitUpgradeable {
-    // keccak256(abi.encode(uint256(keccak256("cross.storage.forge.erc20.decimals")) - 1)) & ~bytes32(uint256(0xff))
+    // keccak256(abi.encode(uint256(keccak256("cross.ramp.storage.erc20.decimals")) - 1)) & ~bytes32(uint256(0xff))
     bytes32 private constant ERC20DecimalsStorageLocation =
-        0x7c3cec2c3c3d573fa006ae6cf08c04c65698a48d9586626c622c1a81a45caf00;
+        0x487e9ce4507767927f0d69bc1e3e8a725bb861e44fe4728e56521e66cd47da00;
 
     constructor() {
         _disableInitializers();
