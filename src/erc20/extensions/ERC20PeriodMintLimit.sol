@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity 0.8.28;
 
 import {SafeCast} from "@openzeppelin-contracts-5.4.0/utils/math/SafeCast.sol";
