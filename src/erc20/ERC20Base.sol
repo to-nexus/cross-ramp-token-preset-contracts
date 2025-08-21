@@ -12,10 +12,6 @@ abstract contract ERC20Base is TokenBase, IERC20Forge, ERC20Upgradeable, ERC20Pe
     bytes32 private constant ERC20DecimalsStorageLocation =
         0x487e9ce4507767927f0d69bc1e3e8a725bb861e44fe4728e56521e66cd47da00;
 
-    constructor() {
-        _disableInitializers();
-    }
-
     function initialize(
         address owner,
         address manager,
@@ -25,9 +21,7 @@ abstract contract ERC20Base is TokenBase, IERC20Forge, ERC20Upgradeable, ERC20Pe
         uint256 initialSupply,
         address initialRecipient,
         bytes memory
-    ) external virtual override initializer {
-        __ERC20Base_init(owner, manager, _name, _symbol, _decimals, initialSupply, initialRecipient);
-    }
+    ) external virtual;
 
     function __ERC20Base_init(
         address owner,
@@ -57,7 +51,7 @@ abstract contract ERC20Base is TokenBase, IERC20Forge, ERC20Upgradeable, ERC20Pe
         }
         if (initialSupply != 0) {
             if (initialRecipient == address(0)) revert TokenBase__NullInput("initialRecipient");
-            ERC20Upgradeable._update(address(0), initialRecipient, initialSupply);
+            _mint(initialRecipient, initialSupply);
         }
     }
 

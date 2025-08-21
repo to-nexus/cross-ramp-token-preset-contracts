@@ -27,9 +27,7 @@ abstract contract ERC721Base is
         string memory symbol,
         string memory baseTokenURI,
         bytes memory
-    ) external virtual override initializer {
-        __ERC721Base_init(owner, manager, name, symbol, baseTokenURI);
-    }
+    ) external virtual;
 
     function __ERC721Base_init(
         address owner,

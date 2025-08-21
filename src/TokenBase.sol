@@ -27,6 +27,10 @@ abstract contract TokenBase is UUPSUpgradeable, AccessControlUpgradeable {
         }
     }
 
+    constructor() {
+        _disableInitializers();
+    }
+
     function __TokenBase_init(address _owner, address _manager) internal onlyInitializing {
         __AccessControl_init();
         __UUPSUpgradeable_init();

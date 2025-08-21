@@ -6,9 +6,6 @@ import {ERC20Capable} from "../extensions/ERC20Capable.sol";
 import {ERC20PeriodsMintLimit} from "../extensions/ERC20PeriodsMintLimit.sol";
 
 contract ERC20MultiMintLimited is ERC20Base, ERC20Capable, ERC20PeriodsMintLimit {
-    error ERC20MultiMintLimited__InvalidInitialData();
-    error ERC20MultiMintLimited__CapTooLow(uint256 cap, uint256 initialSupply);
-
     constructor() {
         _disableInitializers();
     }
@@ -23,26 +20,26 @@ contract ERC20MultiMintLimited is ERC20Base, ERC20Capable, ERC20PeriodsMintLimit
         address initialRecipient,
         bytes memory data
     ) external override initializer {
+        {
+            uint256 cap_;
+            (cap_, data) = abi.decode(data, (uint256, bytes));
+            __ERC20Capable_init(cap_);
+        }
+        {
+            uint256[] memory durations;
+            int256[] memory offsetSeconds;
+            uint256[] memory limits;
+            (durations, offsetSeconds, limits) = abi.decode(data, (uint256[], int256[], uint256[]));
+            __ERC20PeriodsMintLimit_init(durations, offsetSeconds, limits);
+        }
         __ERC20Base_init(owner, manager, name, symbol, decimals, initialSupply, initialRecipient);
-
-        // Decode cap from _data
-        if (data.length <= 32 * 4) revert ERC20MultiMintLimited__InvalidInitialData();
-        (uint256 _cap, uint256[] memory durations, int256[] memory offsetSeconds, uint256[] memory limits) =
-            abi.decode(data, (uint256, uint256[], int256[], uint256[]));
-
-        // Validate cap
-        if (_cap < initialSupply) revert ERC20MultiMintLimited__CapTooLow(_cap, initialSupply);
-
-        // Initialize parent contracts
-        __ERC20PeriodsMintLimit_init(durations, offsetSeconds, limits);
-        __ERC20Capable_init(_cap);
     }
 
-    function mint(address to, uint256 amount) public virtual override(ERC20Base, ERC20PeriodsMintLimit) {
+    function mint(address to, uint256 amount) public override(ERC20Base, ERC20PeriodsMintLimit) {
         ERC20PeriodsMintLimit.mint(to, amount);
     }
 
-    function _update(address from, address to, uint256 value) internal virtual override(ERC20Base, ERC20Capable) {
+    function _update(address from, address to, uint256 value) internal override(ERC20Base, ERC20Capable) {
         ERC20Capable._update(from, to, value);
     }
 }

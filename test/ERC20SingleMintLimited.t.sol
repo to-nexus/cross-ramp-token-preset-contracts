@@ -22,7 +22,7 @@ contract ERC20SingleMintLimitedTest is Test {
     function setUp() public {
         vm.warp(duration + 1);
         address tokenImpl = address(new ERC20SingleMintLimited());
-        bytes memory data = abi.encode(cap, duration, offset, limit);
+        bytes memory data = abi.encode(cap, abi.encode(duration, offset, limit));
         address proxy = address(
             new ERC1967Proxy(
                 tokenImpl,
@@ -49,7 +49,7 @@ contract ERC20SingleMintLimitedTest is Test {
     function test_initialize_reverts_on_invalid_data() public {
         address tokenImpl = address(new ERC20SingleMintLimited());
         bytes memory data = hex"1234";
-        vm.expectRevert(abi.encodeWithSignature("ERC20SingleMintLimited__InvalidInitialData()"));
+        vm.expectRevert();
         new ERC1967Proxy(
             tokenImpl,
             abi.encodeCall(
@@ -61,11 +61,9 @@ contract ERC20SingleMintLimitedTest is Test {
 
     function test_initialize_reverts_on_cap_too_low() public {
         address tokenImpl = address(new ERC20SingleMintLimited());
-        bytes memory data = abi.encode(initialSupply - 1, duration, offset, limit);
+        bytes memory data = abi.encode(initialSupply - 1, abi.encode(duration, offset, limit));
         vm.expectRevert(
-            abi.encodeWithSelector(
-                ERC20SingleMintLimited.ERC20SingleMintLimited__CapTooLow.selector, initialSupply - 1, initialSupply
-            )
+            abi.encodeWithSignature("ERC20Capable__ERC20ExceededCap(uint256,uint256)", initialSupply, initialSupply - 1)
         );
         new ERC1967Proxy(
             tokenImpl,
