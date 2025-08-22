@@ -4,13 +4,8 @@ pragma solidity 0.8.28;
 import {ERC20Base} from "../ERC20Base.sol";
 import {ERC20Capable} from "../extensions/ERC20Capable.sol";
 import {ERC20PeriodMintLimit} from "../extensions/ERC20PeriodMintLimit.sol";
-import {ERC20PeriodsMintLimit} from "../extensions/ERC20PeriodsMintLimit.sol";
 
 contract ERC20SingleMintLimited is ERC20Base, ERC20Capable, ERC20PeriodMintLimit {
-    constructor() {
-        _disableInitializers();
-    }
-
     function initialize(
         address owner,
         address manager,

@@ -4,10 +4,6 @@ pragma solidity 0.8.28;
 import {ERC20Base, ERC20Capable} from "../extensions/ERC20Capable.sol";
 
 contract ERC20Capped is ERC20Capable {
-    constructor() {
-        _disableInitializers();
-    }
-
     function initialize(
         address _owner,
         address manager,

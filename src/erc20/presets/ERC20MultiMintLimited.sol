@@ -6,10 +6,6 @@ import {ERC20Capable} from "../extensions/ERC20Capable.sol";
 import {ERC20PeriodsMintLimit} from "../extensions/ERC20PeriodsMintLimit.sol";
 
 contract ERC20MultiMintLimited is ERC20Base, ERC20Capable, ERC20PeriodsMintLimit {
-    constructor() {
-        _disableInitializers();
-    }
-
     function initialize(
         address owner,
         address manager,
