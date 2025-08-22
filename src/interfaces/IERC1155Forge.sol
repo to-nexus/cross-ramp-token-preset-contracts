@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.26;
 
 interface IERC1155Forge {
     function initialize(address owner, address manager, string calldata uri, bytes calldata data) external;
