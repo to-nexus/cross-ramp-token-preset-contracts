@@ -32,7 +32,7 @@ contract ERC20CappedTest is Test {
         token = new ERC20Capped(owner, forges, NAME, SYMBOL, DECIMALS, CAP);
     }
 
-    function test_Initial_state() public {
+    function test_initial_state() public view {
         assertEq(token.name(), NAME);
         assertEq(token.symbol(), SYMBOL);
         assertEq(token.decimals(), DECIMALS);

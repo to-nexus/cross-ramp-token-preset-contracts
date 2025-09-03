@@ -24,7 +24,7 @@ abstract contract ERC20Base is TokenBase, IERC20Forge, ERC20, ERC20Permit {
     }
 
     function burnFrom(address from, uint256 amount) public virtual override {
-        _spendAllowance(from, _msgSender(), amount);
+        if (from != _msgSender()) _spendAllowance(from, _msgSender(), amount);
         _burn(from, amount);
     }
 
@@ -102,7 +102,7 @@ abstract contract ERC20Base is TokenBase, IERC20Forge, ERC20, ERC20Permit {
 
 import {IPreset} from "../interfaces/IPreset.sol";
 import {IERC20} from "@openzeppelin-contracts-5.4.0/token/ERC20/IERC20.sol";
-import {IERC20Permit} from "@openzeppelin-contracts-5.4.0/token/erc20/extensions/IERC20Permit.sol";
+import {IERC20Permit} from "@openzeppelin-contracts-5.4.0/token/ERC20/extensions/IERC20Permit.sol";
 import {IERC20Metadata} from "@openzeppelin-contracts-5.4.0/interfaces/IERC20Metadata.sol";
 import {IERC20Errors} from "@openzeppelin-contracts-5.4.0/interfaces/draft-IERC6093.sol";
 import {IERC5267} from "@openzeppelin-contracts-5.4.0/interfaces/IERC5267.sol";

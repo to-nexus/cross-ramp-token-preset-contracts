@@ -34,7 +34,7 @@ contract ERC20FixedTest is Test {
         token = new ERC20Fixed(owner, forges, NAME, SYMBOL, DECIMALS, INITIAL_SUPPLY, initialRecipient);
     }
 
-    function test_initial_state() public {
+    function test_initial_state() public view {
         assertEq(token.name(), NAME);
         assertEq(token.symbol(), SYMBOL);
         assertEq(token.decimals(), DECIMALS);

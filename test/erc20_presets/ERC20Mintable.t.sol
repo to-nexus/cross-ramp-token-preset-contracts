@@ -31,7 +31,7 @@ contract ERC20MintableTest is Test {
         token = new ERC20Mintable(owner, forges, NAME, SYMBOL, DECIMALS);
     }
 
-    function test_Initial_state() public {
+    function test_initial_state() public view {
         assertEq(token.name(), NAME);
         assertEq(token.symbol(), SYMBOL);
         assertEq(token.decimals(), DECIMALS);
