@@ -5,7 +5,7 @@ import {ERC20Base} from "../ERC20Base.sol";
 import {ERC20Capable} from "../extensions/ERC20Capable.sol";
 import {ERC20PeriodMintLimit} from "../extensions/ERC20PeriodMintLimit.sol";
 
-contract ERC20MintLimited is ERC20Base, ERC20Capable, ERC20PeriodMintLimit {
+contract ERC20CappedMintLimited is ERC20Base, ERC20Capable, ERC20PeriodMintLimit {
     constructor(
         address owner,
         address[] memory forges,
@@ -33,9 +33,9 @@ contract ERC20MintLimited is ERC20Base, ERC20Capable, ERC20PeriodMintLimit {
 
 import {ERC20BasePreset} from "../ERC20Base.sol";
 
-contract ERC20MintLimitedPreset is ERC20BasePreset {
+contract ERC20CappedMintLimitedPreset is ERC20BasePreset {
     function code() public pure override returns (bytes memory) {
-        return type(ERC20MintLimited).creationCode;
+        return type(ERC20CappedMintLimited).creationCode;
     }
 
     function deployCode(bytes memory initialData) external pure override returns (bytes memory) {
