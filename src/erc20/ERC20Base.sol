@@ -112,7 +112,7 @@ abstract contract ERC20BasePreset is IPreset {
 
     function deployCode(bytes memory initialData) external pure virtual override returns (bytes memory);
 
-    function supportInterface(bytes4 interfaceId) external view virtual override returns (bool) {
+    function supportsInterface(bytes4 interfaceId) external view virtual override returns (bool) {
         return interfaceId == type(IPreset).interfaceId || interfaceId == type(IERC20Forge).interfaceId
             || interfaceId == type(IERC20).interfaceId || interfaceId == type(IERC20Metadata).interfaceId
             || interfaceId == type(IERC20Errors).interfaceId || interfaceId == type(IERC20Permit).interfaceId

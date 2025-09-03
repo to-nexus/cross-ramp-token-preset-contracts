@@ -23,31 +23,31 @@ contract TokenFactoryImpl is ITokenFactory, BaseAccessControlUpgradeable, UUPSUp
 
     bytes32 public constant DEPLOYER_ROLE = keccak256("DEPLOYER");
 
-    // keccak256(abi.encode(uint256(keccak256("cross.storage.forge.TokenFactory.erc20Impls")) - 1)) & ~bytes32(uint256(0xff))
-    bytes32 private constant TOKEN_FACTORY_ERC20_STORAGE_LOCATION =
-        0xd9ce7ba49891d0b3422c928b675902668a780038fd864217ee35722e549a9f00;
-    // keccak256(abi.encode(uint256(keccak256("cross.storage.forge.TokenFactory.erc721Impls")) - 1)) & ~bytes32(uint256(0xff))
-    bytes32 private constant TOKEN_FACTORY_ERC721_STORAGE_LOCATION =
-        0xd9ce7ba49891d0b3422c928b675902668a780038fd864217ee35722e549a9f00;
-    // keccak256(abi.encode(uint256(keccak256("cross.storage.forge.TokenFactory.erc1155Impls")) - 1)) & ~bytes32(uint256(0xff))
-    bytes32 private constant TOKEN_FACTORY_ERC1155_STORAGE_LOCATION =
-        0xd9ce7ba49891d0b3422c928b675902668a780038fd864217ee35722e549a9f00;
+    // keccak256(abi.encode(uint256(keccak256("cross.storage.forge.TokenFactory.presets.erc20")) - 1)) & ~bytes32(uint256(0xff))
+    bytes32 private constant TOKEN_FACTORY_PRESETS_ERC20_STORAGE_LOCATION =
+        0xfa740b5aea945b859e6b1818bc8abac939db8ff469f9acaf2edcd0ab2a30ed00;
+    // keccak256(abi.encode(uint256(keccak256("cross.storage.forge.TokenFactory.presets.erc721")) - 1)) & ~bytes32(uint256(0xff))
+    bytes32 private constant TOKEN_FACTORY_PRESETS_ERC721_STORAGE_LOCATION =
+        0x0ba01e148bd67b15fb00bdb66e1e4258eed5548f20dab9953a22df6c8da0dc00;
+    // keccak256(abi.encode(uint256(keccak256("cross.storage.forge.TokenFactory.presets.erc1155")) - 1)) & ~bytes32(uint256(0xff))
+    bytes32 private constant TOKEN_FACTORY_PRESETS_ERC1155_STORAGE_LOCATION =
+        0xcb44f8d29a1bb7d43d4a2253bb120c9a4049e5d606d5a943e73d143f21aacf00;
 
     function _getTokenFactoryERC20Storage() private pure returns (EnumerableSet.AddressSet storage $) {
         assembly {
-            $.slot := TOKEN_FACTORY_ERC20_STORAGE_LOCATION
+            $.slot := TOKEN_FACTORY_PRESETS_ERC20_STORAGE_LOCATION
         }
     }
 
     function _getTokenFactoryERC721Storage() private pure returns (EnumerableSet.AddressSet storage $) {
         assembly {
-            $.slot := TOKEN_FACTORY_ERC721_STORAGE_LOCATION
+            $.slot := TOKEN_FACTORY_PRESETS_ERC721_STORAGE_LOCATION
         }
     }
 
     function _getTokenFactoryERC1155Storage() private pure returns (EnumerableSet.AddressSet storage $) {
         assembly {
-            $.slot := TOKEN_FACTORY_ERC1155_STORAGE_LOCATION
+            $.slot := TOKEN_FACTORY_PRESETS_ERC1155_STORAGE_LOCATION
         }
     }
 
@@ -59,6 +59,7 @@ contract TokenFactoryImpl is ITokenFactory, BaseAccessControlUpgradeable, UUPSUp
     /// @custom:oz-upgrades-unsafe-allow constructor
     function initialize(
         address owner,
+        address[] memory deployers,
         address[] memory erc20Impls,
         address[] memory erc721Impls,
         address[] memory erc1155Impls
@@ -67,6 +68,12 @@ contract TokenFactoryImpl is ITokenFactory, BaseAccessControlUpgradeable, UUPSUp
         __UUPSUpgradeable_init();
 
         _grantRole(DEPLOYER_ROLE, owner);
+        uint256 length = deployers.length;
+        unchecked {
+            for (uint256 i = 0; i < length; ++i) {
+                _grantRole(DEPLOYER_ROLE, deployers[i]);
+            }
+        }
         _setImpls(TokenType.ERC20, type(IERC20Forge).interfaceId, _getTokenFactoryERC20Storage(), erc20Impls, true);
         _setImpls(TokenType.ERC721, type(IERC721Forge).interfaceId, _getTokenFactoryERC721Storage(), erc721Impls, true);
         _setImpls(
@@ -163,7 +170,7 @@ contract TokenFactoryImpl is ITokenFactory, BaseAccessControlUpgradeable, UUPSUp
     function _setImpls(
         TokenType tokeType,
         bytes4 interfaceId,
-        EnumerableSet.AddressSet storage _impls,
+        EnumerableSet.AddressSet storage $,
         address[] memory impls,
         bool add
     ) private {
@@ -178,14 +185,14 @@ contract TokenFactoryImpl is ITokenFactory, BaseAccessControlUpgradeable, UUPSUp
                     if (!IERC165(impl).supportsInterface(interfaceId)) {
                         revert TokenFactory__InvalidLogic(tokeType, impl);
                     }
-                    if (_impls.add(impl)) {
+                    if ($.add(impl)) {
                         emit PresetLogicSet(tokeType, impl);
                     }
                 }
             } else {
                 for (uint256 i = 0; i < length; ++i) {
                     address impl = impls[i];
-                    if (_impls.remove(impl)) {
+                    if ($.remove(impl)) {
                         emit PresetLogicRemoved(tokeType, impl);
                     }
                 }
