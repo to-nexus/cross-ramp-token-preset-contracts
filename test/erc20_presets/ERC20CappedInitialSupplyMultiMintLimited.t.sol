@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import {ERC20CappedMultiMintLimited} from "../../src/erc20/presets/ERC20CappedMultiMintLimited.sol";
+import {ERC20CappedInitialSupplyMultiMintLimited} from
+    "../../src/erc20/presets/ERC20CappedInitialSupplyMultiMintLimited.sol";
 import {Test, console} from "forge-std-1.10.0/src/Test.sol";
 
-contract ERC20CappedMultiMintLimitedTest is Test {
-    ERC20CappedMultiMintLimited public token;
+contract ERC20CappedInitialSupplyMultiMintLimitedTest is Test {
+    ERC20CappedInitialSupplyMultiMintLimited public token;
     address public owner;
     address public forge1;
     address public forge2;
@@ -13,6 +14,8 @@ contract ERC20CappedMultiMintLimitedTest is Test {
     address public user2;
 
     uint256 constant CAP = 10000000 * 10 ** 18; // 10M tokens cap
+    uint256 constant INITIAL_SUPPLY = 50000 * 10 ** 18; // 50K tokens initial supply
+    address constant INITIAL_RECIPIENT = address(0xBEEF);
     string constant NAME = "Multi Mint Limited Token";
     string constant SYMBOL = "MMLT";
     uint8 constant DECIMALS = 18;
@@ -50,15 +53,19 @@ contract ERC20CappedMultiMintLimitedTest is Test {
         limits = new uint256[](3);
         limits[0] = 1000 * 10 ** 18; // 1K tokens per hour
         limits[1] = 10000 * 10 ** 18; // 10K tokens per day
-        limits[2] = 50000 * 10 ** 18; // 100K tokens per week
+        limits[2] = 50000 * 10 ** 18; // 50K tokens per week
 
         address[] memory forges = new address[](2);
         forges[0] = forge1;
         forges[1] = forge2;
 
         vm.prank(owner);
-        bytes[2] memory extensionData = [abi.encode(CAP), abi.encode(durations, offsetSeconds, limits)];
-        token = new ERC20CappedMultiMintLimited(owner, forges, NAME, SYMBOL, DECIMALS, extensionData);
+        bytes[3] memory extensionData = [
+            abi.encode(CAP),
+            abi.encode(INITIAL_SUPPLY, INITIAL_RECIPIENT),
+            abi.encode(durations, offsetSeconds, limits)
+        ];
+        token = new ERC20CappedInitialSupplyMultiMintLimited(owner, forges, NAME, SYMBOL, DECIMALS, extensionData);
     }
 
     // ========== Initial State Tests ==========
@@ -68,7 +75,7 @@ contract ERC20CappedMultiMintLimitedTest is Test {
         assertEq(token.symbol(), SYMBOL);
         assertEq(token.decimals(), DECIMALS);
         assertEq(token.cap(), CAP);
-        assertEq(token.totalSupply(), 0);
+        assertEq(token.totalSupply(), INITIAL_SUPPLY);
         assertEq(token.owner(), owner);
 
         // Check period configurations
@@ -105,8 +112,12 @@ contract ERC20CappedMultiMintLimitedTest is Test {
 
         vm.prank(owner);
         vm.expectRevert();
-        bytes[2] memory extensionData = [abi.encode(CAP), abi.encode(invalidDurations, offsetSeconds, limits)];
-        new ERC20CappedMultiMintLimited(owner, forges, NAME, SYMBOL, DECIMALS, extensionData);
+        bytes[3] memory extensionData = [
+            abi.encode(CAP),
+            abi.encode(INITIAL_SUPPLY, INITIAL_RECIPIENT),
+            abi.encode(invalidDurations, offsetSeconds, limits)
+        ];
+        new ERC20CappedInitialSupplyMultiMintLimited(owner, forges, NAME, SYMBOL, DECIMALS, extensionData);
     }
 
     function test_revert_when_zero_limits() public {
@@ -120,8 +131,12 @@ contract ERC20CappedMultiMintLimitedTest is Test {
 
         vm.prank(owner);
         vm.expectRevert();
-        bytes[2] memory extensionData = [abi.encode(CAP), abi.encode(durations, offsetSeconds, zeroLimits)];
-        new ERC20CappedMultiMintLimited(owner, forges, NAME, SYMBOL, DECIMALS, extensionData);
+        bytes[3] memory extensionData = [
+            abi.encode(CAP),
+            abi.encode(INITIAL_SUPPLY, INITIAL_RECIPIENT),
+            abi.encode(durations, offsetSeconds, zeroLimits)
+        ];
+        new ERC20CappedInitialSupplyMultiMintLimited(owner, forges, NAME, SYMBOL, DECIMALS, extensionData);
     }
 
     // ========== Minting Tests ==========
@@ -133,7 +148,7 @@ contract ERC20CappedMultiMintLimitedTest is Test {
         token.mint(user1, amount);
 
         assertEq(token.balanceOf(user1), amount);
-        assertEq(token.totalSupply(), amount);
+        assertEq(token.totalSupply(), INITIAL_SUPPLY + amount);
 
         // Check available capacities
         uint256[] memory capacities = token.availableMintCapacities();
@@ -219,7 +234,7 @@ contract ERC20CappedMultiMintLimitedTest is Test {
 
         assertEq(token.balanceOf(user1), limits[0]);
         assertEq(token.balanceOf(user2), limits[0]);
-        assertEq(token.totalSupply(), limits[0] * 2);
+        assertEq(token.totalSupply(), INITIAL_SUPPLY + (limits[0] * 2));
     }
 
     function test_mint_in_new_daily_period() public {
@@ -249,7 +264,7 @@ contract ERC20CappedMultiMintLimitedTest is Test {
 
         assertEq(token.balanceOf(user1), limits[1]);
         assertEq(token.balanceOf(user2), limits[1]);
-        assertEq(token.totalSupply(), limits[1] * 2);
+        assertEq(token.totalSupply(), INITIAL_SUPPLY + (limits[1] * 2));
     }
 
     function test_mint_in_new_weekly_period() public {
@@ -292,7 +307,7 @@ contract ERC20CappedMultiMintLimitedTest is Test {
 
         assertEq(token.balanceOf(user1), limits[2]);
         assertEq(token.balanceOf(user2), limits[2]);
-        assertEq(token.totalSupply(), limits[2] * 2);
+        assertEq(token.totalSupply(), INITIAL_SUPPLY + (limits[2] * 2));
     }
 
     function test_multiple_mints_same_period() public {
@@ -311,7 +326,7 @@ contract ERC20CappedMultiMintLimitedTest is Test {
 
         assertEq(token.balanceOf(user1), amount1 + amount3);
         assertEq(token.balanceOf(user2), amount2);
-        assertEq(token.totalSupply(), amount1 + amount2 + amount3);
+        assertEq(token.totalSupply(), INITIAL_SUPPLY + (amount1 + amount2 + amount3));
     }
 
     // ========== Period Management Tests ==========
@@ -479,7 +494,7 @@ contract ERC20CappedMultiMintLimitedTest is Test {
         token.burnFrom(user1, amount / 2);
 
         assertEq(token.balanceOf(user1), amount / 2);
-        assertEq(token.totalSupply(), amount / 2);
+        assertEq(token.totalSupply(), INITIAL_SUPPLY + (amount / 2));
     }
 
     // ========== Complex Scenario Tests ==========
@@ -527,12 +542,13 @@ contract ERC20CappedMultiMintLimitedTest is Test {
         vm.prank(forge1);
         token.mint(user2, 1000 * 10 ** 18); // This would have failed with old hourly limit
 
-        assertEq(token.totalSupply(), 1500 * 10 ** 18);
+        assertEq(token.totalSupply(), INITIAL_SUPPLY + (1500 * 10 ** 18));
     }
 
     function test_revert_when_mint_exceeds_cap() public {
         // Mint close to cap over multiple periods
         uint256 limitCount = CAP / limits[2];
+        limitCount--; // initial supply already 50k, so do one less full week
         for (uint256 i = 0; i < limitCount; i++) {
             uint256 startTime = block.timestamp;
             uint256 count = limits[2] / limits[1];

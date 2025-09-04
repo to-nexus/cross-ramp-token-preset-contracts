@@ -91,6 +91,16 @@ contract ERC20CappedInitialSupplyTest is Test {
         token.mint(user1, 1000);
     }
 
+    function test_revert_when_grater_than_cap_initial_supply() public {
+        address[] memory forges = new address[](1);
+        forges[0] = forge1;
+
+        vm.prank(owner);
+        bytes[2] memory extensionData = [abi.encode(INITIAL_SUPPLY - 1), abi.encode(INITIAL_SUPPLY, INITIAL_RECIPIENT)];
+        vm.expectRevert();
+        new ERC20CappedInitialSupply(owner, forges, NAME, SYMBOL, DECIMALS, extensionData);
+    }
+
     function test_transfer() public {
         uint256 amount = 1000 * 10 ** 18;
 
