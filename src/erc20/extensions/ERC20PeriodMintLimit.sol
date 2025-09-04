@@ -3,8 +3,8 @@ pragma solidity ^0.8.26;
 
 import {SafeCast} from "@openzeppelin-contracts-5.4.0/utils/math/SafeCast.sol";
 
-import {ERC20Base} from "../ERC20Base.sol";
 import {PeriodManager} from "../../libraries/PeriodManager.sol";
+import {ERC20Base} from "../ERC20Base.sol";
 
 abstract contract ERC20PeriodMintLimit is ERC20Base {
     using PeriodManager for PeriodManager.PeriodConfig;
