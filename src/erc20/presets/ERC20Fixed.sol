@@ -13,9 +13,8 @@ contract ERC20Fixed is ERC20InitialSupply {
         string memory name,
         string memory symbol,
         uint8 decimals,
-        uint256 initialSupply,
-        address initialRecipient
-    ) ERC20Base(owner, forges, name, symbol, decimals) ERC20InitialSupply(initialSupply, initialRecipient) {}
+        bytes memory extensionData
+    ) ERC20Base(owner, forges, name, symbol, decimals) ERC20InitialSupply(extensionData) {}
 
     function mint(address, uint256) public pure override {
         revert ERC20Fixed__MintingNotAllowed();
@@ -43,8 +42,6 @@ contract ERC20FixedPreset is ERC20BasePreset {
             bytes memory data
         ) = abi.decode(initialData, (address, address[], string, string, uint8, bytes));
 
-        (uint256 initialSupply, address initialRecipient) = abi.decode(data, (uint256, address));
-        return
-            abi.encodePacked(code(), abi.encode(owner, forges, name, symbol, decimals, initialSupply, initialRecipient));
+        return abi.encodePacked(code(), abi.encode(owner, forges, name, symbol, decimals, data));
     }
 }

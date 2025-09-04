@@ -12,13 +12,11 @@ contract ERC20CappedInitialSupply is ERC20Base, ERC20Capable, ERC20InitialSupply
         string memory name,
         string memory symbol,
         uint8 decimals,
-        uint256 cap,
-        uint256 initialSupply,
-        address initialRecipient
+        bytes[2] memory extensionData
     )
         ERC20Base(owner, forges, name, symbol, decimals)
-        ERC20Capable(cap)
-        ERC20InitialSupply(initialSupply, initialRecipient)
+        ERC20Capable(extensionData[0])
+        ERC20InitialSupply(extensionData[1])
     {}
 
     function _update(address from, address to, uint256 value) internal override(ERC20Base, ERC20Capable) {
@@ -27,8 +25,9 @@ contract ERC20CappedInitialSupply is ERC20Base, ERC20Capable, ERC20InitialSupply
 }
 
 import {ERC20BasePreset} from "../ERC20Base.sol";
+import {Test, console} from "forge-std-1.10.0/src/Test.sol";
 
-contract ERC20CappedInitialSupplyPreset is ERC20BasePreset {
+contract ERC20CappedInitialSupplyPreset is ERC20BasePreset, Test {
     function code() public pure override returns (bytes memory) {
         return type(ERC20CappedInitialSupply).creationCode;
     }
@@ -42,10 +41,6 @@ contract ERC20CappedInitialSupplyPreset is ERC20BasePreset {
             uint8 decimals,
             bytes memory data
         ) = abi.decode(initialData, (address, address[], string, string, uint8, bytes));
-
-        (uint256 cap, uint256 initialSupply, address initialRecipient) = abi.decode(data, (uint256, uint256, address));
-        return abi.encodePacked(
-            code(), abi.encode(owner, forges, name, symbol, decimals, cap, initialSupply, initialRecipient)
-        );
+        return abi.encodePacked(code(), abi.encode(owner, forges, name, symbol, decimals, abi.decode(data, (bytes[2]))));
     }
 }

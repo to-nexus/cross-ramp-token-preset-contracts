@@ -33,8 +33,8 @@ contract ERC20CappedInitialSupplyTest is Test {
         forges[1] = forge2;
 
         vm.prank(owner);
-        token =
-            new ERC20CappedInitialSupply(owner, forges, NAME, SYMBOL, DECIMALS, CAP, INITIAL_SUPPLY, INITIAL_RECIPIENT);
+        bytes[2] memory extensionData = [abi.encode(CAP), abi.encode(INITIAL_SUPPLY, INITIAL_RECIPIENT)];
+        token = new ERC20CappedInitialSupply(owner, forges, NAME, SYMBOL, DECIMALS, extensionData);
     }
 
     function test_initial_state() public view {

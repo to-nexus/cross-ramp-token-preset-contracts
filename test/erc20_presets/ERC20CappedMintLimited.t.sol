@@ -33,7 +33,8 @@ contract ERC20CappedMintLimitedTest is Test {
         forges[1] = forge2;
 
         vm.prank(owner);
-        token = new ERC20CappedMintLimited(owner, forges, NAME, SYMBOL, DECIMALS, CAP, DURATION, OFFSET_SECONDS, LIMIT);
+        bytes[2] memory extensionData = [abi.encode(CAP), abi.encode(DURATION, OFFSET_SECONDS, LIMIT)];
+        token = new ERC20CappedMintLimited(owner, forges, NAME, SYMBOL, DECIMALS, extensionData);
     }
 
     function test_initial_state() public view {

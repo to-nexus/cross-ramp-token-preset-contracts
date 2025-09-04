@@ -21,7 +21,8 @@ abstract contract ERC20PeriodMintLimit is ERC20Base {
     uint256 private _limit; // The maximum amount that can be minted in a period
     uint256 private _periodCapacity; // The remaining capacity for the current period
 
-    constructor(uint256 duration, int256 offsetSeconds, uint256 limit) {
+    constructor(bytes memory data) {
+        (uint256 duration, int256 offsetSeconds, uint256 limit) = abi.decode(data, (uint256, int256, uint256));
         if (duration == 0 || limit == 0) {
             revert TokenBase__NullInput("limit or period");
         }

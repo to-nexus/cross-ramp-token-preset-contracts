@@ -29,7 +29,7 @@ contract ERC20CappedTest is Test {
         forges[1] = forge2;
 
         vm.prank(owner);
-        token = new ERC20Capped(owner, forges, NAME, SYMBOL, DECIMALS, CAP);
+        token = new ERC20Capped(owner, forges, NAME, SYMBOL, DECIMALS, abi.encode(CAP));
     }
 
     function test_initial_state() public view {

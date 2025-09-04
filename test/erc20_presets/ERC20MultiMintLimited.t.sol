@@ -56,7 +56,9 @@ contract ERC20MultiMintLimitedTest is Test {
         forges[1] = forge2;
 
         vm.prank(owner);
-        token = new ERC20MultiMintLimited(owner, forges, NAME, SYMBOL, DECIMALS, durations, offsetSeconds, limits);
+        token = new ERC20MultiMintLimited(
+            owner, forges, NAME, SYMBOL, DECIMALS, abi.encode(durations, offsetSeconds, limits)
+        );
     }
 
     // ========== Initial State Tests ==========
@@ -108,9 +110,11 @@ contract ERC20MultiMintLimitedTest is Test {
             NAME,
             SYMBOL,
             DECIMALS,
-            invalidDurations, // Wrong length
-            offsetSeconds, // Length 3
-            limits // Length 3
+            abi.encode(
+                invalidDurations, // Wrong length
+                offsetSeconds, // Length 3
+                limits // Length 3
+            )
         );
     }
 
@@ -125,7 +129,9 @@ contract ERC20MultiMintLimitedTest is Test {
 
         vm.prank(owner);
         vm.expectRevert();
-        new ERC20MultiMintLimited(owner, forges, NAME, SYMBOL, DECIMALS, durations, offsetSeconds, zeroLimits);
+        new ERC20MultiMintLimited(
+            owner, forges, NAME, SYMBOL, DECIMALS, abi.encode(durations, offsetSeconds, zeroLimits)
+        );
     }
 
     // ========== Minting Tests ==========

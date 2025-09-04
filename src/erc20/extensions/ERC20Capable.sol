@@ -11,7 +11,8 @@ abstract contract ERC20Capable is ERC20Base {
 
     error ERC20Capable__ERC20ExceededCap(uint256 increasedSupply, uint256 cap);
 
-    constructor(uint256 cap_) {
+    constructor(bytes memory data) {
+        uint256 cap_ = abi.decode(data, (uint256));
         if (cap_ == 0) {
             revert TokenBase__NullInput("cap");
         }

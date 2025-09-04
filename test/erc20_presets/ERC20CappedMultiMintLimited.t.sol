@@ -57,9 +57,8 @@ contract ERC20CappedMultiMintLimitedTest is Test {
         forges[1] = forge2;
 
         vm.prank(owner);
-        token = new ERC20CappedMultiMintLimited(
-            owner, forges, NAME, SYMBOL, DECIMALS, CAP, durations, offsetSeconds, limits
-        );
+        bytes[2] memory extensionData = [abi.encode(CAP), abi.encode(durations, offsetSeconds, limits)];
+        token = new ERC20CappedMultiMintLimited(owner, forges, NAME, SYMBOL, DECIMALS, extensionData);
     }
 
     // ========== Initial State Tests ==========
@@ -106,17 +105,8 @@ contract ERC20CappedMultiMintLimitedTest is Test {
 
         vm.prank(owner);
         vm.expectRevert();
-        new ERC20CappedMultiMintLimited(
-            owner,
-            forges,
-            NAME,
-            SYMBOL,
-            DECIMALS,
-            CAP,
-            invalidDurations, // Wrong length
-            offsetSeconds, // Length 3
-            limits // Length 3
-        );
+        bytes[2] memory extensionData = [abi.encode(CAP), abi.encode(invalidDurations, offsetSeconds, limits)];
+        new ERC20CappedMultiMintLimited(owner, forges, NAME, SYMBOL, DECIMALS, extensionData);
     }
 
     function test_revert_when_zero_limits() public {
@@ -130,9 +120,8 @@ contract ERC20CappedMultiMintLimitedTest is Test {
 
         vm.prank(owner);
         vm.expectRevert();
-        new ERC20CappedMultiMintLimited(
-            owner, forges, NAME, SYMBOL, DECIMALS, CAP, durations, offsetSeconds, zeroLimits
-        );
+        bytes[2] memory extensionData = [abi.encode(CAP), abi.encode(durations, offsetSeconds, zeroLimits)];
+        new ERC20CappedMultiMintLimited(owner, forges, NAME, SYMBOL, DECIMALS, extensionData);
     }
 
     // ========== Minting Tests ==========

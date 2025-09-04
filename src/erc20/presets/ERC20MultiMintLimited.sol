@@ -10,10 +10,8 @@ contract ERC20MultiMintLimited is ERC20PeriodsMintLimit {
         string memory name,
         string memory symbol,
         uint8 decimals,
-        uint256[] memory durations,
-        int256[] memory offsetSeconds,
-        uint256[] memory limits
-    ) ERC20Base(owner, forges, name, symbol, decimals) ERC20PeriodsMintLimit(durations, offsetSeconds, limits) {}
+        bytes memory extensionData
+    ) ERC20Base(owner, forges, name, symbol, decimals) ERC20PeriodsMintLimit(extensionData) {}
 
     function mint(address to, uint256 amount) public override {
         ERC20PeriodsMintLimit.mint(to, amount);
@@ -37,11 +35,6 @@ contract ERC20MultiMintLimitedPreset is ERC20BasePreset {
             bytes memory data
         ) = abi.decode(initialData, (address, address[], string, string, uint8, bytes));
 
-        (uint256[] memory durations, int256[] memory offsetSeconds, uint256[] memory limits) =
-            abi.decode(data, (uint256[], int256[], uint256[]));
-
-        return abi.encodePacked(
-            code(), abi.encode(owner, forges, name, symbol, decimals, durations, offsetSeconds, limits)
-        );
+        return abi.encodePacked(code(), abi.encode(owner, forges, name, symbol, decimals, data));
     }
 }

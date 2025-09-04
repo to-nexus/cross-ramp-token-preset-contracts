@@ -32,7 +32,7 @@ contract ERC20MintLimitedTest is Test {
         forges[1] = forge2;
 
         vm.prank(owner);
-        token = new ERC20MintLimited(owner, forges, NAME, SYMBOL, DECIMALS, DURATION, OFFSET_SECONDS, LIMIT);
+        token = new ERC20MintLimited(owner, forges, NAME, SYMBOL, DECIMALS, abi.encode(DURATION, OFFSET_SECONDS, LIMIT));
     }
 
     function test_initial_state() public view {

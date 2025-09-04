@@ -100,13 +100,17 @@ contract TokenFactoryTest is Test {
         forges[1] = forge2;
 
         vm.prank(owner);
+        bytes[2] memory extensionData = [
+            abi.encode(1000000 * 10 ** 18), // 1M cap
+            abi.encode(86400, 0, 100000 * 10 ** 18) // 1 day duration, 0 offset, 100k limit
+        ];
         address tokenAddress = factory.deployERC20(
             owner,
             forges,
             "Capped Mint Limited Token",
             "CAPPEDLIM",
             18,
-            abi.encode(1000000 * 10 ** 18, 86400, 0, 100000 * 10 ** 18), // 1M cap, 1 day duration, 0 offset, 100k limit
+            abi.encode(extensionData),
             erc20CappedMintLimitedPreset
         );
         ERC20CappedMintLimited token = ERC20CappedMintLimited(tokenAddress);
@@ -144,13 +148,17 @@ contract TokenFactoryTest is Test {
         limits[2] = 50000 * 10 ** 18; // 100K tokens per week
 
         vm.prank(owner);
+        bytes[2] memory extensionData = [
+            abi.encode(cap), // 1M cap
+            abi.encode(durations, offsetSeconds, limits) // durations, offsets, limits
+        ];
         address tokenAddress = factory.deployERC20(
             owner,
             forges,
             "Capped Mint Limited Token",
             "CAPPEDLIM",
             18,
-            abi.encode(cap, durations, offsetSeconds, limits), // 1M cap, 1 day duration, 0 offset, 100k limit
+            abi.encode(extensionData),
             erc20CappedMultiMintLimitedPreset
         );
         ERC20CappedMultiMintLimited token = ERC20CappedMultiMintLimited(tokenAddress);

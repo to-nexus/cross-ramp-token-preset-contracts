@@ -22,7 +22,9 @@ abstract contract ERC20PeriodsMintLimit is ERC20Base {
     uint256[] private _periodStartTimes;
     uint256[] private _periodCapacities;
 
-    constructor(uint256[] memory durations, int256[] memory offsetSeconds, uint256[] memory limits) {
+    constructor(bytes memory data) {
+        (uint256[] memory durations, int256[] memory offsetSeconds, uint256[] memory limits) =
+            abi.decode(data, (uint256[], int256[], uint256[]));
         uint256 length = limits.length;
         if (length == 0 || length != durations.length || length != offsetSeconds.length) {
             revert ERC20PeriodsMintLimit__InvalidLength();
@@ -109,12 +111,12 @@ abstract contract ERC20PeriodsMintLimit is ERC20Base {
 
     function availableMintCapacities() external view returns (uint256[] memory) {
         uint256[] memory currentPeriodStartTimes = periodStartTimes();
-        uint256[] memory periodStartTimes = _periodStartTimes;
+        uint256[] memory periodStartTimes_ = _periodStartTimes;
 
         uint256 length = _length;
         uint256[] memory capacities = new uint256[](length);
         for (uint256 i = 0; i < length;) {
-            uint256 _periodStart = periodStartTimes[i];
+            uint256 _periodStart = periodStartTimes_[i];
             if (_periodStart == currentPeriodStartTimes[i]) {
                 capacities[i] = _periodCapacities[i];
             } else {

@@ -18,17 +18,12 @@ contract ERC20CappedInitialSupplyMultiMintLimited is
         string memory name,
         string memory symbol,
         uint8 decimals,
-        uint256 cap,
-        uint256 initialSupply,
-        address initialRecipient,
-        uint256[] memory durations,
-        int256[] memory offsetSeconds,
-        uint256[] memory limits
+        bytes[3] memory extensionData
     )
         ERC20Base(owner, forges, name, symbol, decimals)
-        ERC20Capable(cap)
-        ERC20InitialSupply(1, address(1))
-        ERC20PeriodsMintLimit(durations, offsetSeconds, limits)
+        ERC20Capable(extensionData[0])
+        ERC20InitialSupply(extensionData[1])
+        ERC20PeriodsMintLimit(extensionData[2])
     {}
 
     function mint(address to, uint256 amount) public override(ERC20Base, ERC20PeriodsMintLimit) {
@@ -57,30 +52,6 @@ contract ERC20CappedInitialSupplyMultiMintLimitedPreset is ERC20BasePreset {
             bytes memory data
         ) = abi.decode(initialData, (address, address[], string, string, uint8, bytes));
 
-        (
-            uint256 cap,
-            uint256 initialSupply,
-            address initialRecipient,
-            uint256[] memory durations,
-            int256[] memory offsetSeconds,
-            uint256[] memory limits
-        ) = abi.decode(data, (uint256, uint256, address, uint256[], int256[], uint256[]));
-
-        return abi.encodePacked(
-            code(),
-            abi.encode(
-                owner,
-                forges,
-                name,
-                symbol,
-                decimals,
-                cap,
-                initialSupply,
-                initialRecipient,
-                durations,
-                offsetSeconds,
-                limits
-            )
-        );
+        return abi.encodePacked(code(), abi.encode(owner, forges, name, symbol, decimals, abi.decode(data, (bytes[3]))));
     }
 }
