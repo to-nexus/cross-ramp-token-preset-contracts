@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.28;
 
-import {UUPSUpgradeable} from "@openzeppelin-contracts-upgradeable-5.4.0/proxy/utils/UUPSUpgradeable.sol";
-import {EnumerableSet} from "@openzeppelin-contracts-5.4.0/utils/structs/EnumerableSet.sol";
-import {Create2} from "@openzeppelin-contracts-5.4.0/utils/Create2.sol";
 import {IERC165} from "@openzeppelin-contracts-5.4.0/interfaces/IERC165.sol";
+import {Create2} from "@openzeppelin-contracts-5.4.0/utils/Create2.sol";
+import {EnumerableSet} from "@openzeppelin-contracts-5.4.0/utils/structs/EnumerableSet.sol";
+import {UUPSUpgradeable} from "@openzeppelin-contracts-upgradeable-5.4.0/proxy/utils/UUPSUpgradeable.sol";
 
+import {IERC1155Forge} from "./interfaces/IERC1155Forge.sol";
 import {IERC20Forge} from "./interfaces/IERC20Forge.sol";
 import {IERC721Forge} from "./interfaces/IERC721Forge.sol";
-import {IERC1155Forge} from "./interfaces/IERC1155Forge.sol";
 import {IPreset} from "./interfaces/IPreset.sol";
 
-import {TokenType, ITokenFactory} from "./interfaces/ITokenFactory.sol";
+import {ITokenFactory, TokenType} from "./interfaces/ITokenFactory.sol";
 import {BaseAccessControlUpgradeable} from "./utils/BaseAccessControlUpgradeable.sol";
 
 contract TokenFactoryImpl is ITokenFactory, BaseAccessControlUpgradeable, UUPSUpgradeable {

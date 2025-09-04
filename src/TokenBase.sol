@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
-import {BaseAccessControl} from "./utils/BaseAccessControl.sol";
 import {EnumerableSet} from "@openzeppelin-contracts-5.4.0/utils/structs/EnumerableSet.sol";
+
+import {BaseAccessControl} from "./utils/BaseAccessControl.sol";
 
 abstract contract TokenBase is BaseAccessControl {
     using EnumerableSet for EnumerableSet.AddressSet;

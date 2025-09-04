@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import {Test, console} from "forge-std-1.10.0/src/Test.sol";
 import {ERC20Capped} from "../../src/erc20/presets/ERC20Capped.sol";
+import {Test, console} from "forge-std-1.10.0/src/Test.sol";
 
 contract ERC20CappedTest is Test {
     ERC20Capped public token;

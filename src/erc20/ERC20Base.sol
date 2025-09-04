@@ -3,8 +3,9 @@ pragma solidity ^0.8.26;
 
 import {ERC20} from "@openzeppelin-contracts-5.4.0/token/ERC20/ERC20.sol";
 import {ERC20Permit} from "@openzeppelin-contracts-5.4.0/token/ERC20/extensions/ERC20Permit.sol";
-import {IERC20Forge} from "../interfaces/IERC20Forge.sol";
+
 import {TokenBase} from "../TokenBase.sol";
+import {IERC20Forge} from "../interfaces/IERC20Forge.sol";
 
 abstract contract ERC20Base is TokenBase, IERC20Forge, ERC20, ERC20Permit {
     uint8 private immutable _decimals;
@@ -101,11 +102,13 @@ abstract contract ERC20Base is TokenBase, IERC20Forge, ERC20, ERC20Permit {
 }
 
 import {IPreset} from "../interfaces/IPreset.sol";
+
+import {IERC20Metadata} from "@openzeppelin-contracts-5.4.0/interfaces/IERC20Metadata.sol";
+
+import {IERC5267} from "@openzeppelin-contracts-5.4.0/interfaces/IERC5267.sol";
+import {IERC20Errors} from "@openzeppelin-contracts-5.4.0/interfaces/draft-IERC6093.sol";
 import {IERC20} from "@openzeppelin-contracts-5.4.0/token/ERC20/IERC20.sol";
 import {IERC20Permit} from "@openzeppelin-contracts-5.4.0/token/ERC20/extensions/IERC20Permit.sol";
-import {IERC20Metadata} from "@openzeppelin-contracts-5.4.0/interfaces/IERC20Metadata.sol";
-import {IERC20Errors} from "@openzeppelin-contracts-5.4.0/interfaces/draft-IERC6093.sol";
-import {IERC5267} from "@openzeppelin-contracts-5.4.0/interfaces/IERC5267.sol";
 
 abstract contract ERC20BasePreset is IPreset {
     function code() external pure virtual override returns (bytes memory);
