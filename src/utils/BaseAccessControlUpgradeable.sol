@@ -16,11 +16,6 @@ abstract contract BaseAccessControlUpgradeable is
     AccessControlDefaultAdminRulesUpgradeable,
     AccessControlEnumerableUpgradeable
 {
-    /// @custom:oz-upgrades-unsafe-allow constructor
-    constructor() {
-        _disableInitializers();
-    }
-
     function __BaseAccessControl_init(address _owner) internal onlyInitializing {
         __BaseAccessControl_init_unchained(_owner);
     }
