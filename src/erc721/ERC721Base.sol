@@ -43,98 +43,100 @@ abstract contract ERC721Base is TokenBase, IERC721Forge, ERC721 {
         _baseTokenURI = baseTokenURI;
     }
 
-    function balanceOf(address owner) public view virtual returns (uint256) {
+    function balanceOf(address owner) public view virtual override returns (uint256) {
         return ERC721.balanceOf(owner);
     }
 
-    function ownerOf(uint256 tokenId) public view virtual returns (address) {
+    function ownerOf(uint256 tokenId) public view virtual override returns (address) {
         return ERC721.ownerOf(tokenId);
     }
 
-    function name() public view virtual returns (string memory) {
+    function name() public view virtual override returns (string memory) {
         return ERC721.name();
     }
 
-    function symbol() public view virtual returns (string memory) {
+    function symbol() public view virtual override returns (string memory) {
         return ERC721.symbol();
     }
 
-    function tokenURI(uint256 tokenId) public view virtual returns (string memory) {
+    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
         return ERC721.tokenURI(tokenId);
     }
 
-    function approve(address to, uint256 tokenId) public virtual {
+    function approve(address to, uint256 tokenId) public virtual override {
         ERC721.approve(to, tokenId);
     }
 
-    function getApproved(uint256 tokenId) public view virtual returns (address) {
+    function getApproved(uint256 tokenId) public view virtual override returns (address) {
         return ERC721.getApproved(tokenId);
     }
 
-    function setApprovalForAll(address operator, bool approved) public virtual {
+    function setApprovalForAll(address operator, bool approved) public virtual override {
         ERC721.setApprovalForAll(operator, approved);
     }
 
-    function isApprovedForAll(address owner, address operator) public view virtual returns (bool) {
+    function isApprovedForAll(address owner, address operator) public view virtual override returns (bool) {
         return ERC721.isApprovedForAll(owner, operator);
     }
 
-    function transferFrom(address from, address to, uint256 tokenId) public virtual {
+    function transferFrom(address from, address to, uint256 tokenId) public virtual override {
         ERC721.transferFrom(from, to, tokenId);
     }
 
-    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data) public virtual {
+    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data) public virtual override {
         ERC721.safeTransferFrom(from, to, tokenId, data);
     }
 
-    function _ownerOf(uint256 tokenId) internal view virtual returns (address) {
+    function _ownerOf(uint256 tokenId) internal view virtual override returns (address) {
         return ERC721._ownerOf(tokenId);
     }
 
-    function _getApproved(uint256 tokenId) internal view virtual returns (address) {
+    function _getApproved(uint256 tokenId) internal view virtual override returns (address) {
         return ERC721._getApproved(tokenId);
     }
 
-    function _isAuthorized(address owner, address spender, uint256 tokenId) internal view virtual returns (bool) {
+    function _isAuthorized(address owner, address spender, uint256 tokenId)
+        internal
+        view
+        virtual
+        override
+        returns (bool)
+    {
         return ERC721._isAuthorized(owner, spender, tokenId);
     }
 
-    function _checkAuthorized(address owner, address spender, uint256 tokenId) internal view virtual {
+    function _checkAuthorized(address owner, address spender, uint256 tokenId) internal view virtual override {
         ERC721._checkAuthorized(owner, spender, tokenId);
     }
 
-    function _increaseBalance(address account, uint128 value) internal virtual {
+    function _increaseBalance(address account, uint128 value) internal virtual override {
         ERC721._increaseBalance(account, value);
     }
 
-    function _update(address to, uint256 tokenId, address auth) internal virtual returns (address) {
+    function _update(address to, uint256 tokenId, address auth) internal virtual override returns (address) {
         return ERC721._update(to, tokenId, auth);
     }
 
-    function _safeMint(address to, uint256 tokenId, bytes memory data) internal virtual {
+    function _safeMint(address to, uint256 tokenId, bytes memory data) internal virtual override {
         ERC721._safeMint(to, tokenId, data);
     }
 
-    function _safeTransfer(address from, address to, uint256 tokenId, bytes memory data) internal virtual {
+    function _safeTransfer(address from, address to, uint256 tokenId, bytes memory data) internal virtual override {
         ERC721._safeTransfer(from, to, tokenId, data);
     }
 
-    function _approve(address to, uint256 tokenId, address auth, bool emitEvent) internal virtual {
+    function _approve(address to, uint256 tokenId, address auth, bool emitEvent) internal virtual override {
         ERC721._approve(to, tokenId, auth, emitEvent);
     }
 
-    function _setApprovalForAll(address owner, address operator, bool approved) internal virtual {
+    function _setApprovalForAll(address owner, address operator, bool approved) internal virtual override {
         ERC721._setApprovalForAll(owner, operator, approved);
     }
 
-    function _requireOwned(uint256 tokenId) internal view returns (address) {
-        return ERC721._requireOwned(tokenId);
-    }
-
-    function supportsInterface(bytes4 interfaceId) external view virtual override returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view virtual override(TokenBase, ERC721) returns (bool) {
         return interfaceId == type(IPreset).interfaceId || interfaceId == type(IERC721Forge).interfaceId
-            || interfaceId == type(IERC721).interfaceId || interfaceId == type(IERC721Errors).interfaceId
-            || interfaceId == type(IERC5267).interfaceId || interfaceId == 0x01ffc9a7; // ERC165
+            || interfaceId == type(IERC721).interfaceId || interfaceId == type(IERC721Metadata).interfaceId
+            || interfaceId == type(IERC721Errors).interfaceId || interfaceId == 0x01ffc9a7; // ERC165
     }
 }
 
