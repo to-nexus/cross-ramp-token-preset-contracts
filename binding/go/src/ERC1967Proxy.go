@@ -24,51 +24,6 @@ var (
 	_ = abi.ConvertType
 )
 
-// IMulticall3Call is an auto generated low-level Go binding around an user-defined struct.
-type IMulticall3Call struct {
-	Target   common.Address
-	CallData []byte
-}
-
-// IMulticall3Call3 is an auto generated low-level Go binding around an user-defined struct.
-type IMulticall3Call3 struct {
-	Target       common.Address
-	AllowFailure bool
-	CallData     []byte
-}
-
-// IMulticall3Call3Value is an auto generated low-level Go binding around an user-defined struct.
-type IMulticall3Call3Value struct {
-	Target       common.Address
-	AllowFailure bool
-	Value        *big.Int
-	CallData     []byte
-}
-
-// IMulticall3Result is an auto generated low-level Go binding around an user-defined struct.
-type IMulticall3Result struct {
-	Success    bool
-	ReturnData []byte
-}
-
-// StdInvariantFuzzArtifactSelector is an auto generated low-level Go binding around an user-defined struct.
-type StdInvariantFuzzArtifactSelector struct {
-	Artifact  string
-	Selectors [][4]byte
-}
-
-// StdInvariantFuzzInterface is an auto generated low-level Go binding around an user-defined struct.
-type StdInvariantFuzzInterface struct {
-	Addr      common.Address
-	Artifacts []string
-}
-
-// StdInvariantFuzzSelector is an auto generated low-level Go binding around an user-defined struct.
-type StdInvariantFuzzSelector struct {
-	Addr      common.Address
-	Selectors [][4]byte
-}
-
 // ERC1967ProxyMetaData contains all meta data concerning the ERC1967Proxy contract.
 var ERC1967ProxyMetaData = bind.MetaData{
 	ABI: "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"implementation\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"_data\",\"type\":\"bytes\"}],\"stateMutability\":\"payable\",\"type\":\"constructor\"},{\"stateMutability\":\"payable\",\"type\":\"fallback\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"implementation\",\"type\":\"address\"}],\"name\":\"Upgraded\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"target\",\"type\":\"address\"}],\"name\":\"AddressEmptyCode\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"implementation\",\"type\":\"address\"}],\"name\":\"ERC1967InvalidImplementation\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ERC1967NonPayable\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"FailedCall\",\"type\":\"error\"}]",
