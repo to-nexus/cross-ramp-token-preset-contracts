@@ -28,6 +28,10 @@ import {ERC20Mintable, ERC20MintablePreset} from "../src/erc20/presets/ERC20Mint
 import {ERC20MintLimited, ERC20MintLimitedPreset} from "../src/erc20/presets/ERC20MintLimited.sol";
 import {ERC20MultiMintLimited, ERC20MultiMintLimitedPreset} from "../src/erc20/presets/ERC20MultiMintLimited.sol";
 
+import {ERC721Simple, ERC721SimplePreset} from "../src/erc721/presets/ERC721Simple.sol";
+
+import {ERC1155Simple, ERC1155SimplePreset} from "../src/erc1155/presets/ERC1155Simple.sol";
+
 contract TokenFactoryTest is Test {
     TokenFactoryImpl public factory;
 
@@ -41,6 +45,10 @@ contract TokenFactoryTest is Test {
     address public erc20MintablePreset;
     address public erc20MintLimitedPreset;
     address public erc20MultiMintLimitedPreset;
+
+    address public erc721SimplePreset;
+
+    address public erc1155SimplePreset;
 
     address public owner;
     address public forge1;
@@ -66,6 +74,9 @@ contract TokenFactoryTest is Test {
         erc20MintLimitedPreset = address(new ERC20MintLimitedPreset());
         erc20MultiMintLimitedPreset = address(new ERC20MultiMintLimitedPreset());
 
+        erc721SimplePreset = address(new ERC721SimplePreset());
+        erc1155SimplePreset = address(new ERC1155SimplePreset());
+
         address[] memory erc20Impls = new address[](10);
         erc20Impls[0] = erc20CappedPreset;
         erc20Impls[1] = erc20CappedInitialSupplyPreset;
@@ -78,12 +89,18 @@ contract TokenFactoryTest is Test {
         erc20Impls[8] = erc20MintLimitedPreset;
         erc20Impls[9] = erc20MultiMintLimitedPreset;
 
+        address[] memory erc721Impls = new address[](1);
+        erc721Impls[0] = erc721SimplePreset;
+
+        address[] memory erc1155Impls = new address[](1);
+        erc1155Impls[0] = erc1155SimplePreset;
+
         address[] memory emptyAddrs;
         address factoryImpl = address(new TokenFactoryImpl());
         address proxy = address(
             new ERC1967Proxy(
                 factoryImpl,
-                abi.encodeCall(TokenFactoryImpl.initialize, (owner, emptyAddrs, erc20Impls, emptyAddrs, emptyAddrs))
+                abi.encodeCall(TokenFactoryImpl.initialize, (owner, emptyAddrs, erc20Impls, erc721Impls, erc1155Impls))
             )
         );
         factory = TokenFactoryImpl(proxy);
@@ -470,5 +487,49 @@ contract TokenFactoryTest is Test {
             assertEq(_durations[i], durations[i]);
             assertEq(_offsetSeconds[i], offsetSeconds[i]);
         }
+    }
+
+    function test_create_erc721_simple() public {
+        address[] memory forges = new address[](2);
+        forges[0] = forge1;
+        forges[1] = forge2;
+
+        vm.prank(owner);
+        address tokenAddress = factory.deployERC721(
+            owner,
+            forges,
+            "Simple NFT",
+            "SNFT",
+            "https://example.com/metadata/",
+            abi.encode(), // no extra params
+            erc721SimplePreset
+        );
+        ERC721Simple token = ERC721Simple(tokenAddress);
+
+        assertEq(token.owner(), owner);
+        assertEq(token.name(), "Simple NFT");
+        assertEq(token.symbol(), "SNFT");
+    }
+
+    function test_create_erc1155_simple() public {
+        address[] memory forges = new address[](2);
+        forges[0] = forge1;
+        forges[1] = forge2;
+
+        vm.prank(owner);
+        address tokenAddress = factory.deployERC1155(
+            owner,
+            forges,
+            "Simple 1155",
+            "S1155",
+            "https://example.com/metadata/{id}.json",
+            abi.encode(), // no extra params
+            erc1155SimplePreset
+        );
+        ERC1155Simple token = ERC1155Simple(tokenAddress);
+
+        assertEq(token.owner(), owner);
+        assertEq(token.name(), "Simple 1155");
+        assertEq(token.symbol(), "S1155");
     }
 }
