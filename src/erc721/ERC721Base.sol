@@ -24,12 +24,18 @@ abstract contract ERC721Base is TokenBase, IERC721Forge, ERC721 {
         _setBaseURI(baseTokenURI_);
     }
 
-    function mint(address to, uint256 tokenID, bytes memory data) external override onlyForge returns (uint256) {
+    function mint(address to, uint256 tokenID, bytes memory data)
+        external
+        virtual
+        override
+        onlyForge
+        returns (uint256)
+    {
         _mint(to, tokenID);
         return tokenID;
     }
 
-    function burnFrom(address from, uint256 tokenID) external {
+    function burnFrom(address from, uint256 tokenID) external virtual override {
         _checkAuthorized(from, msg.sender, tokenID);
         _burn(tokenID);
     }

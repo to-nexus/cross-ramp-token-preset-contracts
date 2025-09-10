@@ -28,6 +28,7 @@ import {ERC20Mintable, ERC20MintablePreset} from "../src/erc20/presets/ERC20Mint
 import {ERC20MintLimited, ERC20MintLimitedPreset} from "../src/erc20/presets/ERC20MintLimited.sol";
 import {ERC20MultiMintLimited, ERC20MultiMintLimitedPreset} from "../src/erc20/presets/ERC20MultiMintLimited.sol";
 
+import {ERC721AutoIncr, ERC721AutoIncrPreset} from "../src/erc721/presets/ERC721AutoIncr.sol";
 import {ERC721Simple, ERC721SimplePreset} from "../src/erc721/presets/ERC721Simple.sol";
 
 import {ERC1155Simple, ERC1155SimplePreset} from "../src/erc1155/presets/ERC1155Simple.sol";
@@ -47,6 +48,7 @@ contract TokenFactoryTest is Test {
     address public erc20MultiMintLimitedPreset;
 
     address public erc721SimplePreset;
+    address public erc721AutoIncrPreset;
 
     address public erc1155SimplePreset;
 
@@ -75,6 +77,8 @@ contract TokenFactoryTest is Test {
         erc20MultiMintLimitedPreset = address(new ERC20MultiMintLimitedPreset());
 
         erc721SimplePreset = address(new ERC721SimplePreset());
+        erc721AutoIncrPreset = address(new ERC721AutoIncrPreset());
+
         erc1155SimplePreset = address(new ERC1155SimplePreset());
 
         address[] memory erc20Impls = new address[](10);
@@ -89,8 +93,9 @@ contract TokenFactoryTest is Test {
         erc20Impls[8] = erc20MintLimitedPreset;
         erc20Impls[9] = erc20MultiMintLimitedPreset;
 
-        address[] memory erc721Impls = new address[](1);
+        address[] memory erc721Impls = new address[](2);
         erc721Impls[0] = erc721SimplePreset;
+        erc721Impls[1] = erc721AutoIncrPreset;
 
         address[] memory erc1155Impls = new address[](1);
         erc1155Impls[0] = erc1155SimplePreset;
@@ -509,6 +514,28 @@ contract TokenFactoryTest is Test {
         assertEq(token.owner(), owner);
         assertEq(token.name(), "Simple NFT");
         assertEq(token.symbol(), "SNFT");
+    }
+
+    function test_create_erc721_auto_incr() public {
+        address[] memory forges = new address[](2);
+        forges[0] = forge1;
+        forges[1] = forge2;
+
+        vm.prank(owner);
+        address tokenAddress = factory.deployERC721(
+            owner,
+            forges,
+            "AutoIncr TokenID NFT",
+            "AITN",
+            "https://example.com/metadata/",
+            abi.encode(), // no extra params
+            erc721AutoIncrPreset
+        );
+        ERC721AutoIncr token = ERC721AutoIncr(tokenAddress);
+
+        assertEq(token.owner(), owner);
+        assertEq(token.name(), "AutoIncr TokenID NFT");
+        assertEq(token.symbol(), "AITN");
     }
 
     function test_create_erc1155_simple() public {
