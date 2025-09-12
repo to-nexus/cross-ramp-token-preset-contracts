@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
 import {ERC20CappedInitialSupplyMintLimited} from "../../src/erc20/presets/ERC20CappedInitialSupplyMintLimited.sol";

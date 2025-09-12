@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
 import {ERC1155Simple} from "../../src/erc1155/presets/ERC1155Simple.sol";
