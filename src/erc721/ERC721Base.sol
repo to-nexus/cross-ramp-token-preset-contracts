@@ -31,7 +31,7 @@ abstract contract ERC721Base is TokenBase, IERC721Forge, ERC721 {
         onlyForge
         returns (uint256)
     {
-        _mint(to, tokenID);
+        _safeMint(to, tokenID);
         return tokenID;
     }
 
