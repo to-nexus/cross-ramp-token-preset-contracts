@@ -35,10 +35,16 @@ abstract contract ERC1155Base is TokenBase, IERC1155Forge, ERC1155 {
     }
 
     function burnFrom(address from, uint256 tokenID, uint256 amount) external {
+        if (from != _msgSender() && !isApprovedForAll(from, _msgSender())) {
+            revert ERC1155MissingApprovalForAll(_msgSender(), from);
+        }
         _burn(from, tokenID, amount);
     }
 
     function burnFromBatch(address from, uint256[] memory tokenIDs, uint256[] memory amounts) external {
+        if (from != _msgSender() && !isApprovedForAll(from, _msgSender())) {
+            revert ERC1155MissingApprovalForAll(_msgSender(), from);
+        }
         _burnBatch(from, tokenIDs, amounts);
     }
 
