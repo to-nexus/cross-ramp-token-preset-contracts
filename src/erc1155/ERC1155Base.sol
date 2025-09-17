@@ -122,7 +122,7 @@ abstract contract ERC1155Base is TokenBase, IERC1155Forge, ERC1155 {
 
     function supportsInterface(bytes4 interfaceId) public view virtual override(TokenBase, ERC1155) returns (bool) {
         return interfaceId == type(IPreset).interfaceId || interfaceId == type(IERC1155Forge).interfaceId
-            || interfaceId == type(IERC1155Errors).interfaceId || ERC1155.supportsInterface(interfaceId);
+            || interfaceId == type(IERC1155Errors).interfaceId || super.supportsInterface(interfaceId);
     }
 }
 

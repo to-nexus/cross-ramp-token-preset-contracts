@@ -143,7 +143,7 @@ abstract contract ERC721Base is TokenBase, IERC721Forge, ERC721 {
     function supportsInterface(bytes4 interfaceId) public view virtual override(TokenBase, ERC721) returns (bool) {
         return interfaceId == type(IPreset).interfaceId || interfaceId == type(IERC721Forge).interfaceId
             || interfaceId == type(IERC721).interfaceId || interfaceId == type(IERC721Metadata).interfaceId
-            || interfaceId == type(IERC721Errors).interfaceId || interfaceId == 0x01ffc9a7; // ERC165
+            || interfaceId == type(IERC721Errors).interfaceId || super.supportsInterface(interfaceId); // ERC165
     }
 }
 
