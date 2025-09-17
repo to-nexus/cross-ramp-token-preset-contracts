@@ -36,6 +36,7 @@ abstract contract ERC721Base is TokenBase, IERC721Forge, ERC721 {
     }
 
     function burnFrom(address from, uint256 tokenID) external virtual override {
+        if (from != _requireOwned(tokenID)) revert IERC721Errors.ERC721InvalidOwner(from);
         _checkAuthorized(from, msg.sender, tokenID);
         _burn(tokenID);
     }
