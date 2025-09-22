@@ -35,10 +35,16 @@ abstract contract ERC1155Base is TokenBase, IERC1155Forge, ERC1155 {
     }
 
     function burnFrom(address from, uint256 tokenID, uint256 amount) external {
+        if (from != _msgSender() && !isApprovedForAll(from, _msgSender())) {
+            revert ERC1155MissingApprovalForAll(_msgSender(), from);
+        }
         _burn(from, tokenID, amount);
     }
 
     function burnFromBatch(address from, uint256[] memory tokenIDs, uint256[] memory amounts) external {
+        if (from != _msgSender() && !isApprovedForAll(from, _msgSender())) {
+            revert ERC1155MissingApprovalForAll(_msgSender(), from);
+        }
         _burnBatch(from, tokenIDs, amounts);
     }
 
@@ -122,7 +128,7 @@ abstract contract ERC1155Base is TokenBase, IERC1155Forge, ERC1155 {
 
     function supportsInterface(bytes4 interfaceId) public view virtual override(TokenBase, ERC1155) returns (bool) {
         return interfaceId == type(IPreset).interfaceId || interfaceId == type(IERC1155Forge).interfaceId
-            || interfaceId == type(IERC1155Errors).interfaceId || ERC1155.supportsInterface(interfaceId);
+            || interfaceId == type(IERC1155Errors).interfaceId || super.supportsInterface(interfaceId);
     }
 }
 

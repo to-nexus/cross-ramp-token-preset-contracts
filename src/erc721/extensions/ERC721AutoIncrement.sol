@@ -8,7 +8,7 @@ abstract contract ERC721AutoIncrement is ERC721Base {
 
     function mint(address to, uint256, bytes memory data) external override onlyForge returns (uint256) {
         uint256 tokenID = ++_currentTokenId;
-        _mint(to, tokenID);
+        _safeMint(to, tokenID);
         return tokenID;
     }
 }
