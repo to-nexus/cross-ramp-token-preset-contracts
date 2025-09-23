@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import {ERC1967Proxy} from "@openzeppelin-contracts-5.4.0/proxy/ERC1967/ERC1967Proxy.sol";
 import {Script, console} from "forge-std-1.10.0/src/Script.sol";
 
 import {TokenFactoryImpl} from "../src/TokenFactoryImpl.sol";
@@ -28,11 +28,13 @@ import {ERC20Mintable, ERC20MintablePreset} from "../src/erc20/presets/ERC20Mint
 import {ERC20MintLimited, ERC20MintLimitedPreset} from "../src/erc20/presets/ERC20MintLimited.sol";
 import {ERC20MultiMintLimited, ERC20MultiMintLimitedPreset} from "../src/erc20/presets/ERC20MultiMintLimited.sol";
 
-contract DeployScript is Script {
-    address private constant OWNER = 0x26e8D58B2f3279D45f98D736942E4fcC9700581f;
+import {ERC721AutoIncr, ERC721AutoIncrPreset} from "../src/erc721/presets/ERC721AutoIncr.sol";
+import {ERC721Simple, ERC721SimplePreset} from "../src/erc721/presets/ERC721Simple.sol";
 
-    // deployRampLogics
-    function deployRampLogics() external {
+import {ERC1155Simple, ERC1155SimplePreset} from "../src/erc1155/presets/ERC1155Simple.sol";
+
+contract DeployScript is Script {
+    function deployLogics() external {
         vm.startBroadcast();
         address tokenFactoryImpl = address(new TokenFactoryImpl());
 
@@ -47,6 +49,12 @@ contract DeployScript is Script {
         address erc20MintablePreset = address(new ERC20MintablePreset());
         address erc20MintLimitedPreset = address(new ERC20MintLimitedPreset());
         address erc20MultiMintLimitedPreset = address(new ERC20MultiMintLimitedPreset());
+
+        address erc721AutoIncr = address(new ERC721AutoIncrPreset());
+        address erc721Simple = address(new ERC721SimplePreset());
+
+        address erc1155Simple = address(new ERC1155SimplePreset());
+
         vm.stopBroadcast();
         console.log("address private tokenFactoryImpl =", tokenFactoryImpl, ";");
         console.log("address private erc20CappedPreset =", erc20CappedPreset, ";");
@@ -67,14 +75,26 @@ contract DeployScript is Script {
         console.log("address private erc20MintablePreset =", erc20MintablePreset, ";");
         console.log("address private erc20MintLimitedPreset =", erc20MintLimitedPreset, ";");
         console.log("address private erc20MultiMintLimitedPreset =", erc20MultiMintLimitedPreset, ";");
+
+        console.log("address private erc721AutoIncr =", erc721AutoIncr, ";");
+        console.log("address private erc721Simple =", erc721Simple, ";");
+
+        console.log("address private erc1155Simple =", erc1155Simple, ";");
     }
 
-    function initializeTokenFactory(address owner, address tokenFactoryImpl, address[] memory erc20Impls) external {
-        address[] memory empty;
+    function initializeTokenFactory(
+        address tokenFactoryImpl,
+        address owner,
+        address[] memory deployers,
+        address[] memory erc20Impls,
+        address[] memory erc721Impls,
+        address[] memory erc1155Impls
+    ) external {
         vm.startBroadcast();
         address tokenFactory = address(
             new ERC1967Proxy(
-                tokenFactoryImpl, abi.encodeCall(TokenFactoryImpl.initialize, (owner, empty, erc20Impls, empty, empty))
+                tokenFactoryImpl,
+                abi.encodeCall(TokenFactoryImpl.initialize, (owner, deployers, erc20Impls, erc721Impls, erc1155Impls))
             )
         );
         vm.stopBroadcast();
