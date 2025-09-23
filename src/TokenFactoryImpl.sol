@@ -20,9 +20,13 @@ contract TokenFactoryImpl is ITokenFactory, BaseAccessControlUpgradeable, UUPSUp
     error TokenFactory__ZeroAddress(bytes32 field);
     error TokenFactory__InvalidLogic(TokenType, address);
     error TokenFactory__DeployFailed(TokenType, address);
+    error TokenFactory__AlreadyUsed(string name, string symbol);
 
     bytes32 public constant DEPLOYER_ROLE = keccak256("DEPLOYER");
 
+    // keccak256(abi.encode(uint256(keccak256("cross.storage.forge.TokenFactory.used.salt")) - 1)) & ~bytes32(uint256(0xff))
+    bytes32 private constant TOKEN_FACTORY_PRESETS_USED_SALT =
+        0xe294215509a604b5edc9b9d1515cad176b775d2d77cd0816f51cd4b4aab27f00;
     // keccak256(abi.encode(uint256(keccak256("cross.storage.forge.TokenFactory.presets.erc20")) - 1)) & ~bytes32(uint256(0xff))
     bytes32 private constant TOKEN_FACTORY_PRESETS_ERC20_STORAGE_LOCATION =
         0xfa740b5aea945b859e6b1818bc8abac939db8ff469f9acaf2edcd0ab2a30ed00;
@@ -32,6 +36,12 @@ contract TokenFactoryImpl is ITokenFactory, BaseAccessControlUpgradeable, UUPSUp
     // keccak256(abi.encode(uint256(keccak256("cross.storage.forge.TokenFactory.presets.erc1155")) - 1)) & ~bytes32(uint256(0xff))
     bytes32 private constant TOKEN_FACTORY_PRESETS_ERC1155_STORAGE_LOCATION =
         0xcb44f8d29a1bb7d43d4a2253bb120c9a4049e5d606d5a943e73d143f21aacf00;
+
+    function _getTokenFactoryUsedSaltStorage() private pure returns (mapping(bytes32 => bool) storage $) {
+        assembly {
+            $.slot := TOKEN_FACTORY_PRESETS_USED_SALT
+        }
+    }
 
     function _getTokenFactoryERC20Storage() private pure returns (EnumerableSet.AddressSet storage $) {
         assembly {
@@ -105,7 +115,7 @@ contract TokenFactoryImpl is ITokenFactory, BaseAccessControlUpgradeable, UUPSUp
         }
 
         bytes memory initialData = abi.encode(owner, forges, name, symbol, decimals, data);
-        token = Create2.deploy(0, keccak256(abi.encodePacked(name, symbol)), IPreset(preset).deployCode(initialData));
+        token = Create2.deploy(0, _makeSalt(name, symbol), IPreset(preset).deployCode(initialData));
         if (token == address(0)) revert TokenFactory__DeployFailed(TokenType.ERC20, preset);
 
         emit TokenDeployed(owner, TokenType.ERC20, token, preset);
@@ -125,7 +135,7 @@ contract TokenFactoryImpl is ITokenFactory, BaseAccessControlUpgradeable, UUPSUp
         }
 
         bytes memory initialData = abi.encode(owner, forges, name, symbol, baseTokenURI, data);
-        token = Create2.deploy(0, keccak256(abi.encodePacked(name, symbol)), IPreset(preset).deployCode(initialData));
+        token = Create2.deploy(0, _makeSalt(name, symbol), IPreset(preset).deployCode(initialData));
         if (token == address(0)) revert TokenFactory__DeployFailed(TokenType.ERC721, preset);
 
         emit TokenDeployed(owner, TokenType.ERC721, token, preset);
@@ -145,7 +155,7 @@ contract TokenFactoryImpl is ITokenFactory, BaseAccessControlUpgradeable, UUPSUp
         }
 
         bytes memory initialData = abi.encode(owner, forges, name, symbol, uri, data);
-        token = Create2.deploy(0, keccak256(abi.encodePacked(name, symbol)), IPreset(preset).deployCode(initialData));
+        token = Create2.deploy(0, _makeSalt(name, symbol), IPreset(preset).deployCode(initialData));
         if (token == address(0)) revert TokenFactory__DeployFailed(TokenType.ERC1155, preset);
 
         emit TokenDeployed(owner, TokenType.ERC1155, token, preset);
@@ -165,6 +175,14 @@ contract TokenFactoryImpl is ITokenFactory, BaseAccessControlUpgradeable, UUPSUp
             (_impls, interfaceId) = (_getTokenFactoryERC1155Storage(), type(IERC1155Forge).interfaceId);
         }
         _setImpls(tokenType, interfaceId, _impls, presets, add);
+    }
+
+    function _makeSalt(string memory name, string memory symbol) private returns (bytes32) {
+        mapping(bytes32 => bool) storage $ = _getTokenFactoryUsedSaltStorage();
+        bytes32 salt = keccak256(abi.encode(name, symbol));
+        if ($[salt]) revert TokenFactory__AlreadyUsed(name, symbol);
+        $[salt] = true;
+        return salt;
     }
 
     function _setImpls(

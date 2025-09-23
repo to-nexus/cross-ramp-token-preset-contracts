@@ -97,7 +97,7 @@ abstract contract ERC20Base is TokenBase, IERC20Forge, ERC20, ERC20Permit {
         return interfaceId == type(IPreset).interfaceId || interfaceId == type(IERC20Forge).interfaceId
             || interfaceId == type(IERC20).interfaceId || interfaceId == type(IERC20Metadata).interfaceId
             || interfaceId == type(IERC20Errors).interfaceId || interfaceId == type(IERC20Permit).interfaceId
-            || interfaceId == type(IERC5267).interfaceId || TokenBase.supportsInterface(interfaceId);
+            || interfaceId == type(IERC5267).interfaceId || super.supportsInterface(interfaceId);
     }
 }
 
