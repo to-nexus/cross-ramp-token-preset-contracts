@@ -36,9 +36,7 @@ contract ERC20CappedInitialSupplyMintLimitedTest is Test {
 
         vm.prank(owner);
         bytes[3] memory extensionData = [
-            abi.encode(CAP),
-            abi.encode(INITIAL_SUPPLY, INITIAL_RECIPIENT),
-            abi.encode(DURATION, OFFSET_SECONDS, LIMIT)
+            abi.encode(CAP), abi.encode(INITIAL_SUPPLY, INITIAL_RECIPIENT), abi.encode(DURATION, OFFSET_SECONDS, LIMIT)
         ];
         token = new ERC20CappedInitialSupplyMintLimited(owner, forges, NAME, SYMBOL, DECIMALS, extensionData);
     }

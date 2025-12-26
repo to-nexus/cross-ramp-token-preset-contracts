@@ -21,8 +21,13 @@ contract ERC721SimplePreset is ERC721BasePreset {
     }
 
     function deployCode(bytes memory initialData) external pure override returns (bytes memory) {
-        (address owner, address[] memory forges, string memory name, string memory symbol, string memory baseTokenURI,)
-        = abi.decode(initialData, (address, address[], string, string, string, bytes));
+        (
+            address owner,
+            address[] memory forges,
+            string memory name,
+            string memory symbol,
+            string memory baseTokenURI,
+        ) = abi.decode(initialData, (address, address[], string, string, string, bytes));
 
         return abi.encodePacked(code(), abi.encode(owner, forges, name, symbol, baseTokenURI));
     }
