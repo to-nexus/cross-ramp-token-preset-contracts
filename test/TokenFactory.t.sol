@@ -22,6 +22,7 @@ import {
     ERC20CappedMultiMintLimited,
     ERC20CappedMultiMintLimitedPreset
 } from "../src/erc20/presets/ERC20CappedMultiMintLimited.sol";
+import {ERC20DeflationaryFixed, ERC20DeflationaryFixedPreset} from "../src/erc20/presets/ERC20DeflationaryFixed.sol";
 import {ERC20Fixed, ERC20FixedPreset} from "../src/erc20/presets/ERC20Fixed.sol";
 import {ERC20Mintable, ERC20MintablePreset} from "../src/erc20/presets/ERC20Mintable.sol";
 
@@ -42,6 +43,7 @@ contract TokenFactoryTest is Test {
     address public erc20CappedInitialSupplyMultiMintLimitedPreset;
     address public erc20CappedMintLimitedPreset;
     address public erc20CappedMultiMintLimitedPreset;
+    address public erc20DeflationaryFixedPreset;
     address public erc20FixedPreset;
     address public erc20MintablePreset;
     address public erc20MintLimitedPreset;
@@ -71,6 +73,7 @@ contract TokenFactoryTest is Test {
         erc20CappedInitialSupplyMultiMintLimitedPreset = address(new ERC20CappedInitialSupplyMultiMintLimitedPreset());
         erc20CappedMintLimitedPreset = address(new ERC20CappedMintLimitedPreset());
         erc20CappedMultiMintLimitedPreset = address(new ERC20CappedMultiMintLimitedPreset());
+        erc20DeflationaryFixedPreset = address(new ERC20DeflationaryFixedPreset());
         erc20FixedPreset = address(new ERC20FixedPreset());
         erc20MintablePreset = address(new ERC20MintablePreset());
         erc20MintLimitedPreset = address(new ERC20MintLimitedPreset());
@@ -81,17 +84,18 @@ contract TokenFactoryTest is Test {
 
         erc1155SimplePreset = address(new ERC1155SimplePreset());
 
-        address[] memory erc20Impls = new address[](10);
+        address[] memory erc20Impls = new address[](11);
         erc20Impls[0] = erc20CappedPreset;
         erc20Impls[1] = erc20CappedInitialSupplyPreset;
         erc20Impls[2] = erc20CappedInitialSupplyMintLimitedPreset;
         erc20Impls[3] = erc20CappedInitialSupplyMultiMintLimitedPreset;
         erc20Impls[4] = erc20CappedMintLimitedPreset;
         erc20Impls[5] = erc20CappedMultiMintLimitedPreset;
-        erc20Impls[6] = erc20FixedPreset;
-        erc20Impls[7] = erc20MintablePreset;
-        erc20Impls[8] = erc20MintLimitedPreset;
-        erc20Impls[9] = erc20MultiMintLimitedPreset;
+        erc20Impls[6] = erc20DeflationaryFixedPreset;
+        erc20Impls[7] = erc20FixedPreset;
+        erc20Impls[8] = erc20MintablePreset;
+        erc20Impls[9] = erc20MintLimitedPreset;
+        erc20Impls[10] = erc20MultiMintLimitedPreset;
 
         address[] memory erc721Impls = new address[](2);
         erc721Impls[0] = erc721SimplePreset;
@@ -360,6 +364,45 @@ contract TokenFactoryTest is Test {
             assertEq(_durations[i], durations[i]);
             assertEq(_offsetSeconds[i], offsetSeconds[i]);
         }
+    }
+
+    function test_create_erc20_deflationary_fixed() public {
+        address[] memory forges = new address[](2);
+        forges[0] = forge1;
+        forges[1] = forge2;
+
+        uint256 initialSupply = 1000000 * 10 ** 18;
+
+        vm.prank(owner);
+        address tokenAddress = factory.deployERC20(
+            owner,
+            forges,
+            "Deflationary Fixed Token",
+            "DEFLAT",
+            18,
+            abi.encode(initialSupply, user1), // 1M initial supply to user1
+            erc20DeflationaryFixedPreset
+        );
+        ERC20DeflationaryFixed token = ERC20DeflationaryFixed(tokenAddress);
+
+        assertEq(token.owner(), owner);
+        assertEq(token.name(), "Deflationary Fixed Token");
+        assertEq(token.symbol(), "DEFLAT");
+        assertEq(token.decimals(), 18);
+        assertEq(token.totalSupply(), initialSupply);
+        assertEq(token.balanceOf(user1), initialSupply);
+
+        // Verify minting is not allowed
+        vm.prank(forge1);
+        vm.expectRevert(ERC20DeflationaryFixed.ERC20DeflationaryFixed__MintingNotAllowed.selector);
+        token.mint(user2, 1000);
+
+        // Verify burning works
+        uint256 burnAmount = 100000 * 10 ** 18;
+        vm.prank(user1);
+        token.burnFrom(user1, burnAmount);
+        assertEq(token.totalSupply(), initialSupply - burnAmount);
+        assertEq(token.balanceOf(user1), initialSupply - burnAmount);
     }
 
     function test_create_erc20_fixed() public {
