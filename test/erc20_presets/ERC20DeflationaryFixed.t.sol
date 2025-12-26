@@ -31,7 +31,9 @@ contract ERC20DeflationaryFixedTest is Test {
         forges[1] = forge2;
 
         vm.prank(owner);
-        token = new ERC20DeflationaryFixed(owner, forges, NAME, SYMBOL, DECIMALS, abi.encode(INITIAL_SUPPLY, initialRecipient));
+        token = new ERC20DeflationaryFixed(
+            owner, forges, NAME, SYMBOL, DECIMALS, abi.encode(INITIAL_SUPPLY, initialRecipient)
+        );
     }
 
     function test_initial_state() public view {

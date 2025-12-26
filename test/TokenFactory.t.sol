@@ -7,7 +7,8 @@ import {Test, console} from "forge-std-1.10.0/src//Test.sol";
 
 import {ERC20Capped, ERC20CappedPreset} from "../src/erc20/presets/ERC20Capped.sol";
 import {
-    ERC20CappedInitialSupply, ERC20CappedInitialSupplyPreset
+    ERC20CappedInitialSupply,
+    ERC20CappedInitialSupplyPreset
 } from "../src/erc20/presets/ERC20CappedInitialSupply.sol";
 import {
     ERC20CappedInitialSupplyMintLimited,

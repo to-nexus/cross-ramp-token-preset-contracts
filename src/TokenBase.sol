@@ -49,7 +49,7 @@ abstract contract TokenBase is BaseAccessControl {
     }
 
     function setForges(address[] calldata forges_, bool add) external onlyRole(MANAGER_ROLE) {
-        function (EnumerableSet.AddressSet storage, address) fn = add ? _addForge : _removeForge;
+        function(EnumerableSet.AddressSet storage, address) fn = add ? _addForge : _removeForge;
 
         unchecked {
             uint256 length = forges_.length;
