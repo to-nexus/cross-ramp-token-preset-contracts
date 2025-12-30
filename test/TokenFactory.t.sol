@@ -35,6 +35,8 @@ import {ERC721Simple, ERC721SimplePreset} from "../src/erc721/presets/ERC721Simp
 
 import {ERC1155Simple, ERC1155SimplePreset} from "../src/erc1155/presets/ERC1155Simple.sol";
 
+import {TokenType} from "../src/interfaces/ITokenFactory.sol";
+
 contract TokenFactoryTest is Test {
     TokenFactoryImpl public factory;
 
@@ -602,5 +604,114 @@ contract TokenFactoryTest is Test {
         assertEq(token.owner(), owner);
         assertEq(token.name(), "Simple 1155");
         assertEq(token.symbol(), "S1155");
+    }
+
+    // ==================== Symbol Uniqueness Tests ====================
+
+    function test_revert_duplicate_symbol_erc20() public {
+        address[] memory forges = new address[](1);
+        forges[0] = forge1;
+
+        // First deployment should succeed
+        vm.prank(owner);
+        factory.deployERC20(owner, forges, "First Token", "DUP", 18, abi.encode(1000000 * 10 ** 18), erc20CappedPreset);
+
+        // Second deployment with same symbol should revert
+        vm.prank(owner);
+        vm.expectRevert(abi.encodeWithSelector(TokenFactoryImpl.TokenFactory__AlreadyUsed.selector, "DUP"));
+        factory.deployERC20(owner, forges, "Second Token", "DUP", 18, abi.encode(2000000 * 10 ** 18), erc20CappedPreset);
+    }
+
+    function test_revert_duplicate_symbol_erc721() public {
+        address[] memory forges = new address[](1);
+        forges[0] = forge1;
+
+        // First deployment should succeed
+        vm.prank(owner);
+        factory.deployERC721(
+            owner, forges, "First NFT", "DUPNFT", "https://example.com/1/", abi.encode(), erc721SimplePreset
+        );
+
+        // Second deployment with same symbol should revert
+        vm.prank(owner);
+        vm.expectRevert(abi.encodeWithSelector(TokenFactoryImpl.TokenFactory__AlreadyUsed.selector, "DUPNFT"));
+        factory.deployERC721(
+            owner, forges, "Second NFT", "DUPNFT", "https://example.com/2/", abi.encode(), erc721SimplePreset
+        );
+    }
+
+    function test_revert_duplicate_symbol_erc1155() public {
+        address[] memory forges = new address[](1);
+        forges[0] = forge1;
+
+        // First deployment should succeed
+        vm.prank(owner);
+        factory.deployERC1155(
+            owner, forges, "First 1155", "DUP1155", "https://example.com/1/{id}.json", abi.encode(), erc1155SimplePreset
+        );
+
+        // Second deployment with same symbol should revert
+        vm.prank(owner);
+        vm.expectRevert(abi.encodeWithSelector(TokenFactoryImpl.TokenFactory__AlreadyUsed.selector, "DUP1155"));
+        factory.deployERC1155(
+            owner,
+            forges,
+            "Second 1155",
+            "DUP1155",
+            "https://example.com/2/{id}.json",
+            abi.encode(),
+            erc1155SimplePreset
+        );
+    }
+
+    function test_revert_duplicate_symbol_cross_token_types() public {
+        address[] memory forges = new address[](1);
+        forges[0] = forge1;
+
+        // Deploy ERC20 first
+        vm.prank(owner);
+        factory.deployERC20(
+            owner, forges, "ERC20 Token", "CROSS", 18, abi.encode(1000000 * 10 ** 18), erc20CappedPreset
+        );
+
+        // Try to deploy ERC721 with same symbol - should revert
+        vm.prank(owner);
+        vm.expectRevert(abi.encodeWithSelector(TokenFactoryImpl.TokenFactory__AlreadyUsed.selector, "CROSS"));
+        factory.deployERC721(
+            owner, forges, "ERC721 Token", "CROSS", "https://example.com/", abi.encode(), erc721SimplePreset
+        );
+
+        // Try to deploy ERC1155 with same symbol - should revert
+        vm.prank(owner);
+        vm.expectRevert(abi.encodeWithSelector(TokenFactoryImpl.TokenFactory__AlreadyUsed.selector, "CROSS"));
+        factory.deployERC1155(
+            owner, forges, "ERC1155 Token", "CROSS", "https://example.com/{id}.json", abi.encode(), erc1155SimplePreset
+        );
+    }
+
+    function test_different_symbols_allowed() public {
+        address[] memory forges = new address[](1);
+        forges[0] = forge1;
+
+        // Deploy multiple tokens with different symbols - all should succeed
+        vm.startPrank(owner);
+
+        address token1 = factory.deployERC20(
+            owner, forges, "Token One", "ONE", 18, abi.encode(1000000 * 10 ** 18), erc20CappedPreset
+        );
+        address token2 = factory.deployERC20(
+            owner, forges, "Token Two", "TWO", 18, abi.encode(1000000 * 10 ** 18), erc20CappedPreset
+        );
+        address token3 = factory.deployERC721(
+            owner, forges, "NFT Three", "THREE", "https://example.com/", abi.encode(), erc721SimplePreset
+        );
+
+        vm.stopPrank();
+
+        assertTrue(token1 != address(0));
+        assertTrue(token2 != address(0));
+        assertTrue(token3 != address(0));
+        assertTrue(token1 != token2);
+        assertTrue(token2 != token3);
     }
 }
