@@ -218,5 +218,14 @@ contract TokenFactoryImpl is ITokenFactory, BaseAccessControlUpgradeable, UUPSUp
         }
     }
 
+    function registerSymbol(string[] calldata symbols) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        uint256 length = symbols.length;
+        unchecked {
+            for (uint256 i = 0; i < length; ++i) {
+                _makeSalt(symbols[i]);
+            }
+        }
+    }
+
     function _authorizeUpgrade(address) internal override onlyRole(DEFAULT_ADMIN_ROLE) {}
 }
