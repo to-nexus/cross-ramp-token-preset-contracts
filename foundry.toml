@@ -2,8 +2,8 @@
 src = "src"
 out = "out"
 libs = ["lib", "dependencies"]
-optimizers = true
-optimizer_runs = 9999999
+optimizer = true
+optimizer-runs = 9999999
 remappings = [
     "@openzeppelin/contracts/=dependencies/@openzeppelin-contracts-5.4.0/",
 ]

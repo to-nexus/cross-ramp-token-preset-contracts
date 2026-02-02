@@ -20,7 +20,7 @@ contract TokenFactoryImpl is ITokenFactory, BaseAccessControlUpgradeable, UUPSUp
     error TokenFactory__ZeroAddress(bytes32 field);
     error TokenFactory__InvalidLogic(TokenType, address);
     error TokenFactory__DeployFailed(TokenType, address);
-    error TokenFactory__AlreadyUsed(string name, string symbol);
+    error TokenFactory__AlreadyUsed(string symbol);
 
     bytes32 public constant DEPLOYER_ROLE = keccak256("DEPLOYER");
 
@@ -115,7 +115,7 @@ contract TokenFactoryImpl is ITokenFactory, BaseAccessControlUpgradeable, UUPSUp
         }
 
         bytes memory initialData = abi.encode(owner, forges, name, symbol, decimals, data);
-        token = Create2.deploy(0, _makeSalt(name, symbol), IPreset(preset).deployCode(initialData));
+        token = Create2.deploy(0, _makeSalt(symbol), IPreset(preset).deployCode(initialData));
         if (token == address(0)) revert TokenFactory__DeployFailed(TokenType.ERC20, preset);
 
         emit TokenDeployed(owner, TokenType.ERC20, token, preset);
@@ -135,7 +135,7 @@ contract TokenFactoryImpl is ITokenFactory, BaseAccessControlUpgradeable, UUPSUp
         }
 
         bytes memory initialData = abi.encode(owner, forges, name, symbol, baseTokenURI, data);
-        token = Create2.deploy(0, _makeSalt(name, symbol), IPreset(preset).deployCode(initialData));
+        token = Create2.deploy(0, _makeSalt(symbol), IPreset(preset).deployCode(initialData));
         if (token == address(0)) revert TokenFactory__DeployFailed(TokenType.ERC721, preset);
 
         emit TokenDeployed(owner, TokenType.ERC721, token, preset);
@@ -155,7 +155,7 @@ contract TokenFactoryImpl is ITokenFactory, BaseAccessControlUpgradeable, UUPSUp
         }
 
         bytes memory initialData = abi.encode(owner, forges, name, symbol, uri, data);
-        token = Create2.deploy(0, _makeSalt(name, symbol), IPreset(preset).deployCode(initialData));
+        token = Create2.deploy(0, _makeSalt(symbol), IPreset(preset).deployCode(initialData));
         if (token == address(0)) revert TokenFactory__DeployFailed(TokenType.ERC1155, preset);
 
         emit TokenDeployed(owner, TokenType.ERC1155, token, preset);
@@ -177,10 +177,10 @@ contract TokenFactoryImpl is ITokenFactory, BaseAccessControlUpgradeable, UUPSUp
         _setImpls(tokenType, interfaceId, _impls, presets, add);
     }
 
-    function _makeSalt(string memory name, string memory symbol) private returns (bytes32) {
+    function _makeSalt(string memory symbol) private returns (bytes32) {
         mapping(bytes32 => bool) storage $ = _getTokenFactoryUsedSaltStorage();
-        bytes32 salt = keccak256(abi.encode(name, symbol));
-        if ($[salt]) revert TokenFactory__AlreadyUsed(name, symbol);
+        bytes32 salt = keccak256(abi.encode(symbol));
+        if ($[salt]) revert TokenFactory__AlreadyUsed(symbol);
         $[salt] = true;
         return salt;
     }
@@ -214,6 +214,15 @@ contract TokenFactoryImpl is ITokenFactory, BaseAccessControlUpgradeable, UUPSUp
                         emit PresetLogicRemoved(tokeType, impl);
                     }
                 }
+            }
+        }
+    }
+
+    function registerSymbol(string[] calldata symbols) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        uint256 length = symbols.length;
+        unchecked {
+            for (uint256 i = 0; i < length; ++i) {
+                _makeSalt(symbols[i]);
             }
         }
     }

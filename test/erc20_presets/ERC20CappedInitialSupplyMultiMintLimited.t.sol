@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-import {ERC20CappedInitialSupplyMultiMintLimited} from
-    "../../src/erc20/presets/ERC20CappedInitialSupplyMultiMintLimited.sol";
+import {
+    ERC20CappedInitialSupplyMultiMintLimited
+} from "../../src/erc20/presets/ERC20CappedInitialSupplyMultiMintLimited.sol";
 import {Test, console} from "forge-std-1.10.0/src/Test.sol";
 
 contract ERC20CappedInitialSupplyMultiMintLimitedTest is Test {
@@ -61,9 +62,7 @@ contract ERC20CappedInitialSupplyMultiMintLimitedTest is Test {
 
         vm.prank(owner);
         bytes[3] memory extensionData = [
-            abi.encode(CAP),
-            abi.encode(INITIAL_SUPPLY, INITIAL_RECIPIENT),
-            abi.encode(durations, offsetSeconds, limits)
+            abi.encode(CAP), abi.encode(INITIAL_SUPPLY, INITIAL_RECIPIENT), abi.encode(durations, offsetSeconds, limits)
         ];
         token = new ERC20CappedInitialSupplyMultiMintLimited(owner, forges, NAME, SYMBOL, DECIMALS, extensionData);
     }

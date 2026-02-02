@@ -5,10 +5,12 @@ import {
     AccessControlUpgradeable,
     IAccessControl
 } from "@openzeppelin-contracts-upgradeable-5.4.0/access/AccessControlUpgradeable.sol";
-import {AccessControlDefaultAdminRulesUpgradeable} from
-    "@openzeppelin-contracts-upgradeable-5.4.0/access/extensions/AccessControlDefaultAdminRulesUpgradeable.sol";
-import {AccessControlEnumerableUpgradeable} from
-    "@openzeppelin-contracts-upgradeable-5.4.0/access/extensions/AccessControlEnumerableUpgradeable.sol";
+import {
+    AccessControlDefaultAdminRulesUpgradeable
+} from "@openzeppelin-contracts-upgradeable-5.4.0/access/extensions/AccessControlDefaultAdminRulesUpgradeable.sol";
+import {
+    AccessControlEnumerableUpgradeable
+} from "@openzeppelin-contracts-upgradeable-5.4.0/access/extensions/AccessControlEnumerableUpgradeable.sol";
 
 abstract contract BaseAccessControlUpgradeable is
     IAccessControl,
@@ -34,7 +36,11 @@ abstract contract BaseAccessControlUpgradeable is
         public
         view
         virtual
-        override(AccessControlUpgradeable, AccessControlDefaultAdminRulesUpgradeable, AccessControlEnumerableUpgradeable)
+        override(
+            AccessControlUpgradeable,
+            AccessControlDefaultAdminRulesUpgradeable,
+            AccessControlEnumerableUpgradeable
+        )
         returns (bool)
     {
         return super.supportsInterface(interfaceId);
@@ -67,7 +73,11 @@ abstract contract BaseAccessControlUpgradeable is
     function _grantRole(bytes32 role, address account)
         internal
         virtual
-        override(AccessControlUpgradeable, AccessControlDefaultAdminRulesUpgradeable, AccessControlEnumerableUpgradeable)
+        override(
+            AccessControlUpgradeable,
+            AccessControlDefaultAdminRulesUpgradeable,
+            AccessControlEnumerableUpgradeable
+        )
         returns (bool)
     {
         return super._grantRole(role, account);
@@ -76,7 +86,11 @@ abstract contract BaseAccessControlUpgradeable is
     function _revokeRole(bytes32 role, address account)
         internal
         virtual
-        override(AccessControlUpgradeable, AccessControlDefaultAdminRulesUpgradeable, AccessControlEnumerableUpgradeable)
+        override(
+            AccessControlUpgradeable,
+            AccessControlDefaultAdminRulesUpgradeable,
+            AccessControlEnumerableUpgradeable
+        )
         returns (bool)
     {
         return super._revokeRole(role, account);

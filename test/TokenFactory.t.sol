@@ -7,7 +7,8 @@ import {Test, console} from "forge-std-1.10.0/src//Test.sol";
 
 import {ERC20Capped, ERC20CappedPreset} from "../src/erc20/presets/ERC20Capped.sol";
 import {
-    ERC20CappedInitialSupply, ERC20CappedInitialSupplyPreset
+    ERC20CappedInitialSupply,
+    ERC20CappedInitialSupplyPreset
 } from "../src/erc20/presets/ERC20CappedInitialSupply.sol";
 import {
     ERC20CappedInitialSupplyMintLimited,
@@ -22,6 +23,7 @@ import {
     ERC20CappedMultiMintLimited,
     ERC20CappedMultiMintLimitedPreset
 } from "../src/erc20/presets/ERC20CappedMultiMintLimited.sol";
+import {ERC20DeflationaryFixed, ERC20DeflationaryFixedPreset} from "../src/erc20/presets/ERC20DeflationaryFixed.sol";
 import {ERC20Fixed, ERC20FixedPreset} from "../src/erc20/presets/ERC20Fixed.sol";
 import {ERC20Mintable, ERC20MintablePreset} from "../src/erc20/presets/ERC20Mintable.sol";
 
@@ -33,6 +35,8 @@ import {ERC721Simple, ERC721SimplePreset} from "../src/erc721/presets/ERC721Simp
 
 import {ERC1155Simple, ERC1155SimplePreset} from "../src/erc1155/presets/ERC1155Simple.sol";
 
+import {TokenType} from "../src/interfaces/ITokenFactory.sol";
+
 contract TokenFactoryTest is Test {
     TokenFactoryImpl public factory;
 
@@ -42,6 +46,7 @@ contract TokenFactoryTest is Test {
     address public erc20CappedInitialSupplyMultiMintLimitedPreset;
     address public erc20CappedMintLimitedPreset;
     address public erc20CappedMultiMintLimitedPreset;
+    address public erc20DeflationaryFixedPreset;
     address public erc20FixedPreset;
     address public erc20MintablePreset;
     address public erc20MintLimitedPreset;
@@ -71,6 +76,7 @@ contract TokenFactoryTest is Test {
         erc20CappedInitialSupplyMultiMintLimitedPreset = address(new ERC20CappedInitialSupplyMultiMintLimitedPreset());
         erc20CappedMintLimitedPreset = address(new ERC20CappedMintLimitedPreset());
         erc20CappedMultiMintLimitedPreset = address(new ERC20CappedMultiMintLimitedPreset());
+        erc20DeflationaryFixedPreset = address(new ERC20DeflationaryFixedPreset());
         erc20FixedPreset = address(new ERC20FixedPreset());
         erc20MintablePreset = address(new ERC20MintablePreset());
         erc20MintLimitedPreset = address(new ERC20MintLimitedPreset());
@@ -81,17 +87,18 @@ contract TokenFactoryTest is Test {
 
         erc1155SimplePreset = address(new ERC1155SimplePreset());
 
-        address[] memory erc20Impls = new address[](10);
+        address[] memory erc20Impls = new address[](11);
         erc20Impls[0] = erc20CappedPreset;
         erc20Impls[1] = erc20CappedInitialSupplyPreset;
         erc20Impls[2] = erc20CappedInitialSupplyMintLimitedPreset;
         erc20Impls[3] = erc20CappedInitialSupplyMultiMintLimitedPreset;
         erc20Impls[4] = erc20CappedMintLimitedPreset;
         erc20Impls[5] = erc20CappedMultiMintLimitedPreset;
-        erc20Impls[6] = erc20FixedPreset;
-        erc20Impls[7] = erc20MintablePreset;
-        erc20Impls[8] = erc20MintLimitedPreset;
-        erc20Impls[9] = erc20MultiMintLimitedPreset;
+        erc20Impls[6] = erc20DeflationaryFixedPreset;
+        erc20Impls[7] = erc20FixedPreset;
+        erc20Impls[8] = erc20MintablePreset;
+        erc20Impls[9] = erc20MintLimitedPreset;
+        erc20Impls[10] = erc20MultiMintLimitedPreset;
 
         address[] memory erc721Impls = new address[](2);
         erc721Impls[0] = erc721SimplePreset;
@@ -362,6 +369,45 @@ contract TokenFactoryTest is Test {
         }
     }
 
+    function test_create_erc20_deflationary_fixed() public {
+        address[] memory forges = new address[](2);
+        forges[0] = forge1;
+        forges[1] = forge2;
+
+        uint256 initialSupply = 1000000 * 10 ** 18;
+
+        vm.prank(owner);
+        address tokenAddress = factory.deployERC20(
+            owner,
+            forges,
+            "Deflationary Fixed Token",
+            "DEFLAT",
+            18,
+            abi.encode(initialSupply, user1), // 1M initial supply to user1
+            erc20DeflationaryFixedPreset
+        );
+        ERC20DeflationaryFixed token = ERC20DeflationaryFixed(tokenAddress);
+
+        assertEq(token.owner(), owner);
+        assertEq(token.name(), "Deflationary Fixed Token");
+        assertEq(token.symbol(), "DEFLAT");
+        assertEq(token.decimals(), 18);
+        assertEq(token.totalSupply(), initialSupply);
+        assertEq(token.balanceOf(user1), initialSupply);
+
+        // Verify minting is not allowed
+        vm.prank(forge1);
+        vm.expectRevert(ERC20DeflationaryFixed.ERC20DeflationaryFixed__MintingNotAllowed.selector);
+        token.mint(user2, 1000);
+
+        // Verify burning works
+        uint256 burnAmount = 100000 * 10 ** 18;
+        vm.prank(user1);
+        token.burnFrom(user1, burnAmount);
+        assertEq(token.totalSupply(), initialSupply - burnAmount);
+        assertEq(token.balanceOf(user1), initialSupply - burnAmount);
+    }
+
     function test_create_erc20_fixed() public {
         address[] memory forges = new address[](2);
         forges[0] = forge1;
@@ -558,5 +604,246 @@ contract TokenFactoryTest is Test {
         assertEq(token.owner(), owner);
         assertEq(token.name(), "Simple 1155");
         assertEq(token.symbol(), "S1155");
+    }
+
+    // ==================== Symbol Uniqueness Tests ====================
+
+    function test_revert_duplicate_symbol_erc20() public {
+        address[] memory forges = new address[](1);
+        forges[0] = forge1;
+
+        // First deployment should succeed
+        vm.prank(owner);
+        factory.deployERC20(owner, forges, "First Token", "DUP", 18, abi.encode(1000000 * 10 ** 18), erc20CappedPreset);
+
+        // Second deployment with same symbol should revert
+        vm.prank(owner);
+        vm.expectRevert(abi.encodeWithSelector(TokenFactoryImpl.TokenFactory__AlreadyUsed.selector, "DUP"));
+        factory.deployERC20(owner, forges, "Second Token", "DUP", 18, abi.encode(2000000 * 10 ** 18), erc20CappedPreset);
+    }
+
+    function test_revert_duplicate_symbol_erc721() public {
+        address[] memory forges = new address[](1);
+        forges[0] = forge1;
+
+        // First deployment should succeed
+        vm.prank(owner);
+        factory.deployERC721(
+            owner, forges, "First NFT", "DUPNFT", "https://example.com/1/", abi.encode(), erc721SimplePreset
+        );
+
+        // Second deployment with same symbol should revert
+        vm.prank(owner);
+        vm.expectRevert(abi.encodeWithSelector(TokenFactoryImpl.TokenFactory__AlreadyUsed.selector, "DUPNFT"));
+        factory.deployERC721(
+            owner, forges, "Second NFT", "DUPNFT", "https://example.com/2/", abi.encode(), erc721SimplePreset
+        );
+    }
+
+    function test_revert_duplicate_symbol_erc1155() public {
+        address[] memory forges = new address[](1);
+        forges[0] = forge1;
+
+        // First deployment should succeed
+        vm.prank(owner);
+        factory.deployERC1155(
+            owner, forges, "First 1155", "DUP1155", "https://example.com/1/{id}.json", abi.encode(), erc1155SimplePreset
+        );
+
+        // Second deployment with same symbol should revert
+        vm.prank(owner);
+        vm.expectRevert(abi.encodeWithSelector(TokenFactoryImpl.TokenFactory__AlreadyUsed.selector, "DUP1155"));
+        factory.deployERC1155(
+            owner,
+            forges,
+            "Second 1155",
+            "DUP1155",
+            "https://example.com/2/{id}.json",
+            abi.encode(),
+            erc1155SimplePreset
+        );
+    }
+
+    function test_revert_duplicate_symbol_cross_token_types() public {
+        address[] memory forges = new address[](1);
+        forges[0] = forge1;
+
+        // Deploy ERC20 first
+        vm.prank(owner);
+        factory.deployERC20(
+            owner, forges, "ERC20 Token", "CROSS", 18, abi.encode(1000000 * 10 ** 18), erc20CappedPreset
+        );
+
+        // Try to deploy ERC721 with same symbol - should revert
+        vm.prank(owner);
+        vm.expectRevert(abi.encodeWithSelector(TokenFactoryImpl.TokenFactory__AlreadyUsed.selector, "CROSS"));
+        factory.deployERC721(
+            owner, forges, "ERC721 Token", "CROSS", "https://example.com/", abi.encode(), erc721SimplePreset
+        );
+
+        // Try to deploy ERC1155 with same symbol - should revert
+        vm.prank(owner);
+        vm.expectRevert(abi.encodeWithSelector(TokenFactoryImpl.TokenFactory__AlreadyUsed.selector, "CROSS"));
+        factory.deployERC1155(
+            owner, forges, "ERC1155 Token", "CROSS", "https://example.com/{id}.json", abi.encode(), erc1155SimplePreset
+        );
+    }
+
+    function test_different_symbols_allowed() public {
+        address[] memory forges = new address[](1);
+        forges[0] = forge1;
+
+        // Deploy multiple tokens with different symbols - all should succeed
+        vm.startPrank(owner);
+
+        address token1 = factory.deployERC20(
+            owner, forges, "Token One", "ONE", 18, abi.encode(1000000 * 10 ** 18), erc20CappedPreset
+        );
+        address token2 = factory.deployERC20(
+            owner, forges, "Token Two", "TWO", 18, abi.encode(1000000 * 10 ** 18), erc20CappedPreset
+        );
+        address token3 = factory.deployERC721(
+            owner, forges, "NFT Three", "THREE", "https://example.com/", abi.encode(), erc721SimplePreset
+        );
+
+        vm.stopPrank();
+
+        assertTrue(token1 != address(0));
+        assertTrue(token2 != address(0));
+        assertTrue(token3 != address(0));
+        assertTrue(token1 != token2);
+        assertTrue(token2 != token3);
+    }
+
+    // ==================== registerSymbol Tests ====================
+
+    function test_registerSymbol_prevents_erc20_deployment() public {
+        address[] memory forges = new address[](1);
+        forges[0] = forge1;
+
+        // Register the symbol first
+        string[] memory symbols = new string[](1);
+        symbols[0] = "RESERVED";
+        vm.prank(owner);
+        factory.registerSymbol(symbols);
+
+        // Try to deploy ERC20 with the registered symbol - should revert
+        vm.prank(owner);
+        vm.expectRevert(abi.encodeWithSelector(TokenFactoryImpl.TokenFactory__AlreadyUsed.selector, "RESERVED"));
+        factory.deployERC20(
+            owner, forges, "Reserved Token", "RESERVED", 18, abi.encode(1000000 * 10 ** 18), erc20CappedPreset
+        );
+    }
+
+    function test_registerSymbol_prevents_erc721_deployment() public {
+        address[] memory forges = new address[](1);
+        forges[0] = forge1;
+
+        // Register the symbol first
+        string[] memory symbols = new string[](1);
+        symbols[0] = "RESERVEDNFT";
+        vm.prank(owner);
+        factory.registerSymbol(symbols);
+
+        // Try to deploy ERC721 with the registered symbol - should revert
+        vm.prank(owner);
+        vm.expectRevert(abi.encodeWithSelector(TokenFactoryImpl.TokenFactory__AlreadyUsed.selector, "RESERVEDNFT"));
+        factory.deployERC721(
+            owner, forges, "Reserved NFT", "RESERVEDNFT", "https://example.com/", abi.encode(), erc721SimplePreset
+        );
+    }
+
+    function test_registerSymbol_prevents_erc1155_deployment() public {
+        address[] memory forges = new address[](1);
+        forges[0] = forge1;
+
+        // Register the symbol first
+        string[] memory symbols = new string[](1);
+        symbols[0] = "RESERVED1155";
+        vm.prank(owner);
+        factory.registerSymbol(symbols);
+
+        // Try to deploy ERC1155 with the registered symbol - should revert
+        vm.prank(owner);
+        vm.expectRevert(abi.encodeWithSelector(TokenFactoryImpl.TokenFactory__AlreadyUsed.selector, "RESERVED1155"));
+        factory.deployERC1155(
+            owner,
+            forges,
+            "Reserved 1155",
+            "RESERVED1155",
+            "https://example.com/{id}.json",
+            abi.encode(),
+            erc1155SimplePreset
+        );
+    }
+
+    function test_registerSymbol_multiple_symbols() public {
+        address[] memory forges = new address[](1);
+        forges[0] = forge1;
+
+        // Register multiple symbols at once
+        string[] memory symbols = new string[](3);
+        symbols[0] = "SYM1";
+        symbols[1] = "SYM2";
+        symbols[2] = "SYM3";
+        vm.prank(owner);
+        factory.registerSymbol(symbols);
+
+        // All registered symbols should prevent deployment
+        vm.startPrank(owner);
+
+        vm.expectRevert(abi.encodeWithSelector(TokenFactoryImpl.TokenFactory__AlreadyUsed.selector, "SYM1"));
+        factory.deployERC20(owner, forges, "Token 1", "SYM1", 18, abi.encode(1000000 * 10 ** 18), erc20CappedPreset);
+
+        vm.expectRevert(abi.encodeWithSelector(TokenFactoryImpl.TokenFactory__AlreadyUsed.selector, "SYM2"));
+        factory.deployERC721(owner, forges, "NFT 2", "SYM2", "https://example.com/", abi.encode(), erc721SimplePreset);
+
+        vm.expectRevert(abi.encodeWithSelector(TokenFactoryImpl.TokenFactory__AlreadyUsed.selector, "SYM3"));
+        factory.deployERC1155(
+            owner, forges, "1155 Token 3", "SYM3", "https://example.com/{id}.json", abi.encode(), erc1155SimplePreset
+        );
+
+        vm.stopPrank();
+    }
+
+    function test_registerSymbol_revert_duplicate_registration() public {
+        // Register a symbol
+        string[] memory symbols = new string[](1);
+        symbols[0] = "DUPE";
+        vm.prank(owner);
+        factory.registerSymbol(symbols);
+
+        // Try to register the same symbol again - should revert
+        vm.prank(owner);
+        vm.expectRevert(abi.encodeWithSelector(TokenFactoryImpl.TokenFactory__AlreadyUsed.selector, "DUPE"));
+        factory.registerSymbol(symbols);
+    }
+
+    function test_registerSymbol_revert_non_admin() public {
+        string[] memory symbols = new string[](1);
+        symbols[0] = "NOTALLOWED";
+
+        // Non-admin should not be able to register symbols
+        vm.prank(user1);
+        vm.expectRevert();
+        factory.registerSymbol(symbols);
+    }
+
+    function test_registerSymbol_revert_already_deployed_symbol() public {
+        address[] memory forges = new address[](1);
+        forges[0] = forge1;
+
+        // Deploy a token first
+        vm.prank(owner);
+        factory.deployERC20(
+            owner, forges, "Deployed Token", "DEPLOYED", 18, abi.encode(1000000 * 10 ** 18), erc20CappedPreset
+        );
+
+        // Try to register the already used symbol - should revert
+        string[] memory symbols = new string[](1);
+        symbols[0] = "DEPLOYED";
+        vm.prank(owner);
+        vm.expectRevert(abi.encodeWithSelector(TokenFactoryImpl.TokenFactory__AlreadyUsed.selector, "DEPLOYED"));
+        factory.registerSymbol(symbols);
     }
 }
