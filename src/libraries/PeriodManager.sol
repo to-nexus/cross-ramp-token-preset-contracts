@@ -22,20 +22,25 @@ library PeriodManager {
      */
     function getPeriodStartForTime(PeriodConfig storage $, uint256 timestamp) internal view returns (uint256) {
         if ($.duration == 0) revert PeriodManager__InvalidDuration();
-        unchecked {
-            timestamp = timestamp - (timestamp % $.duration);
-        }
+        uint256 duration = uint256($.duration);
         if ($.offsetSeconds == 0) {
-            return timestamp;
+            unchecked {
+                return (timestamp / duration) * duration;
+            }
         } else if ($.offsetSeconds > 0) {
-            return timestamp + uint256(int256($.offsetSeconds));
+            uint256 offset = uint256(int256($.offsetSeconds));
+            if (timestamp < offset) revert PeriodManager__InvalidOffset(timestamp, $.offsetSeconds);
+            unchecked {
+                return ((timestamp - offset) / duration) * duration + offset;
+            }
         } else {
             uint256 offset = uint256(-int256($.offsetSeconds));
-            // Ensure timestamp does not underflow
-            if (timestamp < offset) {
-                revert PeriodManager__InvalidOffset(timestamp, $.offsetSeconds);
+            unchecked {
+                uint256 shifted = timestamp + offset;
+                uint256 periodFloor = (shifted / duration) * duration;
+                if (periodFloor < offset) revert PeriodManager__InvalidOffset(timestamp, $.offsetSeconds);
+                return periodFloor - offset;
             }
-            return timestamp - offset;
         }
     }
 
